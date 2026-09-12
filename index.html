@@ -1,863 +1,2176 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reflex Coach Pro - Song Ngữ, Hội Thoại & Luyện Gõ</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English & Chinese Reflex Coach - Luyện Phản Xạ & Ngữ Pháp Thực Chiến</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: 600; }
-    .pulse-ring { animation: pulse 2s infinite; }
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(37, 99, 235, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .animate-pulse-ring {
+      animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
-  <!-- Header -->
-  <header class="bg-white border-b sticky top-0 z-30 shadow-sm">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <span class="text-2xl">⚡</span>
-        <h1 class="text-lg font-bold text-slate-900">Reflex Coach Pro</h1>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('grammar')">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+          <i class="fa-solid fa-bolt-lightning text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-base sm:text-lg leading-tight text-slate-900 tracking-tight flex items-center gap-1.5">
+            Reflex Coach
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">Anh ⇋ Trung</span>
+          </h1>
+          <p class="text-[11px] text-slate-500 font-medium">Ngữ pháp 15P • Song ngữ 10 từ • Phản xạ thực chiến</p>
+        </div>
       </div>
-      <div class="flex items-center space-x-3 text-sm">
-        <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
-          🔥 <span id="streakDisplay">1 Ngày</span>
-        </span>
-        <span class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-medium">
-          ✅ <span id="masteredCount">0</span> Từ thuộc
-        </span>
+
+      <!-- Navigation tabs (Desktop) -->
+      <nav class="hidden lg:flex items-center space-x-1 bg-slate-100 p-1 rounded-2xl text-xs font-semibold">
+        <button onclick="switchTab('grammar')" id="tab-btn-grammar" class="tab-btn px-3 py-1.5 rounded-xl transition bg-white text-indigo-600 shadow-xs font-bold">
+          <i class="fa-solid fa-graduation-cap mr-1 text-indigo-500"></i>Ngữ Pháp 15P
+        </button>
+        <button onclick="switchTab('dualvocab')" id="tab-btn-dualvocab" class="tab-btn px-3 py-1.5 rounded-xl transition text-slate-600 hover:text-slate-900">
+          <i class="fa-solid fa-language mr-1 text-amber-500"></i>Song Ngữ 10 Từ
+        </button>
+        <button onclick="switchTab('chinese')" id="tab-btn-chinese" class="tab-btn px-3 py-1.5 rounded-xl transition text-rose-600 hover:text-rose-800 font-bold">
+          <i class="fa-solid fa-user-tie mr-1 text-rose-500"></i>Tiếng Trung Sếp
+        </button>
+        <button onclick="switchTab('drills')" id="tab-btn-drills" class="tab-btn px-3 py-1.5 rounded-xl transition text-slate-600 hover:text-slate-900">
+          <i class="fa-solid fa-stopwatch mr-1 text-sky-500"></i>Phản Xạ 3S
+        </button>
+        <button onclick="switchTab('roleplay')" id="tab-btn-roleplay" class="tab-btn px-3 py-1.5 rounded-xl transition text-slate-600 hover:text-slate-900">
+          <i class="fa-solid fa-comments mr-1 text-emerald-500"></i>Nhập Vai AI
+        </button>
+        <button onclick="switchTab('chunks')" id="tab-btn-chunks" class="tab-btn px-3 py-1.5 rounded-xl transition text-slate-600 hover:text-slate-900">
+          <i class="fa-solid fa-book-bookmark mr-1 text-purple-500"></i>Mẫu Câu
+        </button>
+      </nav>
+
+      <!-- Action Button & Sync/Streak Status -->
+      <div class="flex items-center space-x-2">
+        <div id="streak-badge-container" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold" title="Chuỗi ngày học liên tục">
+          <i class="fa-solid fa-fire text-amber-500 animate-bounce"></i>
+          <span id="streak-counter-text">Chuỗi 1 Ngày</span>
+        </div>
+
+        <div id="cloud-sync-status" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 text-slate-600 text-[11px] font-semibold" title="Trạng thái lưu trữ dữ liệu">
+          <i class="fa-solid fa-cloud-check text-emerald-500" id="cloud-sync-icon"></i>
+          <span id="cloud-sync-text" class="hidden md:inline">Đã sẵn sàng</span>
+        </div>
+
+        <button onclick="openVoiceCallModal()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs shadow-md shadow-emerald-200 flex items-center gap-2 transition transform active:scale-95">
+          <span class="w-2 h-2 rounded-full bg-emerald-200 animate-ping"></span>
+          <i class="fa-solid fa-phone"></i>
+          <span>Gọi Thoại AI</span>
+        </button>
       </div>
     </div>
-    <!-- Menu Điều Hướng -->
-    <div class="max-w-5xl mx-auto px-4 flex space-x-6 overflow-x-auto text-sm">
-      <button onclick="switchTab('call')" id="tab-call" class="py-3 tab-active whitespace-nowrap">📞 Gọi Thoại (Sếp & AI)</button>
-      <button onclick="switchTab('typing')" id="tab-typing" class="py-3 text-slate-500 hover:text-slate-900 whitespace-nowrap">⌨️ Luyện Gõ Từ & Pinyin</button>
-      <button onclick="switchTab('vocab')" id="tab-vocab" class="py-3 text-slate-500 hover:text-slate-900 whitespace-nowrap">📚 10 Từ Song Ngữ & Quiz</button>
-      <button onclick="switchTab('grammar')" id="tab-grammar" class="py-3 text-slate-500 hover:text-slate-900 whitespace-nowrap">🧩 Ngữ Pháp Đa Dạng</button>
-      <button onclick="switchTab('reflex')" id="tab-reflex" class="py-3 text-slate-500 hover:text-slate-900 whitespace-nowrap">⏱️ Phản Xạ 3 Giây</button>
+
+    <!-- Mobile Sub-navigation Bar -->
+    <div class="lg:hidden flex border-t border-slate-200 bg-white divide-x divide-slate-100 overflow-x-auto text-[11px] font-medium custom-scrollbar">
+      <button onclick="switchTab('grammar')" id="mob-tab-grammar" class="flex-1 py-2.5 px-3 text-center text-indigo-600 font-bold whitespace-nowrap bg-indigo-50/50">Ngữ Pháp</button>
+      <button onclick="switchTab('dualvocab')" id="mob-tab-dualvocab" class="flex-1 py-2.5 px-3 text-center text-slate-600 whitespace-nowrap">Song Ngữ 10 Từ</button>
+      <button onclick="switchTab('chinese')" id="mob-tab-chinese" class="flex-1 py-2.5 px-3 text-center text-rose-600 font-bold whitespace-nowrap">Tiếng Trung Sếp</button>
+      <button onclick="switchTab('drills')" id="mob-tab-drills" class="flex-1 py-2.5 px-3 text-center text-slate-600 whitespace-nowrap">Phản Xạ 3S</button>
+      <button onclick="switchTab('roleplay')" id="mob-tab-roleplay" class="flex-1 py-2.5 px-3 text-center text-slate-600 whitespace-nowrap">Nhập Vai AI</button>
+      <button onclick="switchTab('chunks')" id="mob-tab-chunks" class="flex-1 py-2.5 px-3 text-center text-slate-600 whitespace-nowrap">Mẫu Câu</button>
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 py-6 flex-1 w-full">
-    
-    <!-- 1. TAB GỌI THOẠI 2 CHIỀU (ANH VƯƠNG & CÔNG SỞ) -->
-    <section id="sec-call" class="space-y-6">
-      <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl p-6 shadow-lg">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-5">
-          <div>
-            <span class="px-2.5 py-1 bg-indigo-500/30 text-indigo-300 text-xs rounded-full font-medium">Hội thoại thực tế</span>
-            <h2 class="text-xl font-bold mt-1">Cuộc Gọi Giả Lập 2 Chiều</h2>
-            <p class="text-slate-400 text-xs mt-0.5">Tương tác giọng nói tự nhiên với Sếp Vương hoặc Quản lý tiếng Anh</p>
-          </div>
-          <div class="flex gap-2">
-            <select id="callScenarioSelect" onchange="changeScenario()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-lg px-3 py-2">
-              <option value="wang_drinking">🇨🇳 Anh Vương (王哥): Bàn tiệc & Team building</option>
-              <option value="wang_sports">🇨🇳 Anh Vương (王哥): Rủ chơi thể thao cuối tuần</option>
-              <option value="en_progress">🇬🇧 English Manager: Báo cáo tiến độ dự án</option>
-              <option value="en_negotiate">🇬🇧 English Client: Đàm phán hạn chót (Deadline)</option>
-            </select>
-          </div>
-        </div>
+  <!-- Main App Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        <div class="mt-6 flex flex-col items-center justify-center space-y-4">
-          <div class="relative">
-            <div id="callAvatarRing" class="w-24 h-24 rounded-full bg-indigo-600 flex items-center justify-center text-3xl shadow-xl">
-              <span id="callAvatarIcon">👔</span>
+    <!-- TAB 1: GRAMMAR PRACTICE (NGỮ PHÁP 15 PHÚT THỰC CHIẾN) -->
+    <section id="view-grammar" class="space-y-6">
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="max-w-2xl space-y-2">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+              <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Kỷ Luật 15 Phút Mỗi Ngày
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Ngữ Pháp Thực Chiến: Nói Tự Nhiên & Chuẩn Xác</h2>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Tập trung đúng 15 phút mỗi ngày: Khắc phục thói quen dịch nhẩm tiếng Việt, làm chủ các cấu trúc câu giao tiếp thường ngày và cấu trúc nâng cao (B2 - C1) để sử dụng tự tin tại nước ngoài.
+            </p>
+          </div>
+
+          <!-- 15-Minute Countdown Widget -->
+          <div class="bg-white/10 backdrop-blur-md border border-white/15 p-4 rounded-2xl flex flex-col items-center justify-center min-w-[200px]">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-300">Bộ đếm thời gian:</span>
+            <div class="text-3xl font-mono font-black text-white my-1" id="grammar-timer-display">15:00</div>
+            <div class="flex items-center gap-2 mt-1">
+              <button onclick="toggleGrammarTimer()" id="grammar-timer-btn" class="px-3 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-play text-[10px]" id="grammar-timer-icon"></i>
+                <span id="grammar-timer-btn-text">Bắt đầu 15P</span>
+              </button>
+              <button onclick="resetGrammarTimer()" title="Thiết lập lại" class="p-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs transition">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
             </div>
           </div>
-          <div class="text-center">
-            <h3 class="font-bold text-lg" id="callerName">Anh Vương (王哥)</h3>
-            <p class="text-xs text-slate-400" id="callRoleDesc">Sếp thân tình như người anh lớn</p>
-            <p class="text-xs text-emerald-400 mt-1 font-medium" id="callStatus">Sẵn sàng kết nối</p>
-          </div>
+        </div>
+      </div>
 
-          <div class="flex gap-4 pt-2">
-            <button onclick="toggleCall()" id="btnCallToggle" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full font-medium text-sm flex items-center gap-2 shadow-lg transition-all">
-              <i class="fa-solid fa-phone"></i> Bắt đầu cuộc gọi
-            </button>
-            <button onclick="triggerMicResponse()" id="btnMic" class="hidden px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-medium text-sm flex items-center gap-2 shadow-lg transition-all">
-              <i class="fa-solid fa-microphone"></i> Bấm để nói phản xạ
-            </button>
-          </div>
+      <!-- Grammar Track Switcher & Mode -->
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div class="flex items-center space-x-2">
+          <button onclick="switchGrammarTrack('daily')" id="track-btn-daily" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs transition">
+            <i class="fa-solid fa-comments mr-1.5"></i> Giao Tiếp Đời Thường (A2-B1)
+          </button>
+          <button onclick="switchGrammarTrack('advanced')" id="track-btn-advanced" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition">
+            <i class="fa-solid fa-crown mr-1.5 text-amber-500"></i> Nâng Cao Học Thuật (B2-C1)
+          </button>
         </div>
 
-        <div class="mt-6 bg-slate-900/80 rounded-xl p-4 border border-slate-800 max-h-64 overflow-y-auto space-y-3 text-sm" id="callChatLog">
-          <div class="text-center text-xs text-slate-500 py-4">Bấm "Bắt đầu cuộc gọi" để kết nối trò chuyện...</div>
+        <div class="flex items-center space-x-2">
+          <button onclick="switchGrammarMode('lessons')" id="gmode-btn-lessons" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-800 transition">
+            <i class="fa-solid fa-book-open mr-1"></i> Bài học & Cấu trúc
+          </button>
+          <button onclick="switchGrammarMode('quiz')" id="gmode-btn-quiz" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition">
+            <i class="fa-solid fa-circle-question mr-1"></i> Trắc nghiệm thực chiến (5 câu)
+          </button>
         </div>
+      </div>
 
-        <div class="mt-4 pt-3 border-t border-slate-800">
-          <span class="text-xs text-slate-400 font-medium">💡 Gợi ý phản xạ nhanh (Bấm để luyện nói theo):</span>
-          <div class="flex flex-wrap gap-2 mt-2" id="callQuickReplies"></div>
+      <!-- Track 1: Daily Grammar Lessons -->
+      <div id="grammar-track-daily" class="space-y-6">
+        <div id="daily-lessons-container" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
+        <div id="daily-quiz-container" class="hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-clipboard-check text-indigo-600"></i> Trắc nghiệm ngữ pháp giao tiếp (Chọn phương án đúng nhất)
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">Luyện tập sâu 5 câu trắc nghiệm thực chiến cho từng lý thuyết</p>
+            </div>
+            <span class="text-xs font-bold px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg">Tổng 5 câu hỏi</span>
+          </div>
+          <div id="daily-quiz-content" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <!-- Track 2: Advanced Grammar Lessons -->
+      <div id="grammar-track-advanced" class="hidden space-y-6">
+        <div id="advanced-lessons-container" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
+        <div id="advanced-quiz-container" class="hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-brain text-purple-600"></i> Thử thách ngữ pháp nâng cao (C1 Inversion, Subjunctive)
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">Luyện tập sâu 5 câu trắc nghiệm thực chiến văn phong nâng cao</p>
+            </div>
+            <span class="text-xs font-bold px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg">Tổng 5 câu hỏi</span>
+          </div>
+          <div id="adv-quiz-content" class="space-y-4"></div>
         </div>
       </div>
     </section>
 
-    <!-- 2. TAB LUYỆN GÕ PHÍM (ĐÃ GIẤU ĐÁP ÁN, CHỈ ĐỂ ĐẦU BÀI) -->
-    <section id="sec-typing" class="hidden space-y-6">
-      <div class="flex flex-wrap gap-2">
-        <button onclick="setTypingMode('pinyin')" id="btn-mode-pinyin" class="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white font-medium">1. Gõ Pinyin (Từ chữ Hán)</button>
-        <button onclick="setTypingMode('en')" id="btn-mode-en" class="px-4 py-2 rounded-lg text-sm bg-white border hover:bg-slate-100 font-medium">2. Gõ Từ Tiếng Anh</button>
-        <button onclick="setTypingMode('zh')" id="btn-mode-zh" class="px-4 py-2 rounded-lg text-sm bg-white border hover:bg-slate-100 font-medium">3. Gõ Chữ Hán (Tiếng Trung)</button>
+    <!-- TAB 2: DAILY 10 BILINGUAL VOCAB (SONG NGỮ ANH ⇋ TRUNG) -->
+    <section id="view-dualvocab" class="hidden space-y-6">
+      <div class="bg-gradient-to-r from-amber-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="max-w-2xl space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                <i class="fa-solid fa-bolt mr-1.5"></i> Phương Pháp Bắc Cầu (Language Laddering)
+              </span>
+              <span id="daily-unlock-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                <i class="fa-regular fa-calendar-check mr-1"></i> Tự động cấp 10 từ mới mỗi ngày
+              </span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Mỗi Ngày 10 Từ Cùng Nghĩa: Anh ⇋ Trung</h2>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Học 1 được 2: Cùng một ý nghĩa công việc & đời sống, nạp cả <strong>từ vựng tiếng Anh (IPA)</strong> và <strong>tiếng Trung (Pinyin + Chữ Hán)</strong>. Tiến độ của bạn được tự động ghi nhớ và lưu trữ an toàn.
+            </p>
+          </div>
+
+          <div class="bg-white/10 backdrop-blur-md border border-white/15 p-4 rounded-2xl flex flex-col items-center justify-center min-w-[210px] text-center">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-300">Tiến độ ngày hôm nay:</span>
+            <div class="text-2xl font-black text-white my-1" id="dualvocab-progress-label">0 / 10 từ</div>
+            <div class="w-full bg-white/20 h-2 rounded-full overflow-hidden mt-1">
+              <div id="dualvocab-progress-bar" class="bg-gradient-to-r from-amber-400 to-emerald-400 h-full w-0 transition-all duration-300"></div>
+            </div>
+            <span id="total-mastered-counter" class="text-[10px] text-slate-300 mt-2">Tổng cộng: 0 từ đã thuộc</span>
+          </div>
+        </div>
       </div>
 
-      <div class="bg-white rounded-2xl border p-6 shadow-sm space-y-6 max-w-2xl mx-auto">
-        <div class="flex justify-between items-center text-xs text-slate-500 border-b pb-3">
-          <span id="typingModeLabel" class="font-semibold text-blue-700 uppercase">CHẾ ĐỘ: GÕ PINYIN</span>
-          <span id="typingProgress">Câu 1/10</span>
+      <!-- Day selector tabs & mode buttons -->
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div class="flex items-center space-x-2 overflow-x-auto pb-1" id="dualvocab-day-pills"></div>
+
+        <div class="flex items-center space-x-2">
+          <button onclick="switchDualVocabMode('cards')" id="dvm-btn-cards" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 transition">
+            <i class="fa-solid fa-id-card mr-1"></i> 10 Thẻ từ vựng
+          </button>
+          <button onclick="switchDualVocabMode('typing')" id="dvm-btn-typing" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition">
+            <i class="fa-solid fa-keyboard mr-1 text-blue-500"></i> Luyện viết ghi nhớ
+          </button>
+          <button onclick="switchDualVocabMode('review')" id="dvm-btn-review" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition">
+            <i class="fa-solid fa-bookmark mr-1 text-emerald-500"></i> Từ đã ghi nhớ (<span id="review-count-badge">0</span>)
+          </button>
+          <button onclick="switchDualVocabMode('match')" id="dvm-btn-match" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition">
+            <i class="fa-solid fa-puzzle-piece mr-1"></i> Ghép đôi Anh - Trung
+          </button>
+        </div>
+      </div>
+
+      <!-- Mode 1: Cards View -->
+      <div id="dualvocab-cards-view" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+      <!-- Mode 2: Writing / Typing Mode (Gõ Pinyin & Từ Vựng - KHÔNG LỘ ĐÁP ÁN) -->
+      <div id="dualvocab-typing-view" class="hidden space-y-4">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs max-w-2xl mx-auto space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div class="flex gap-2">
+              <button onclick="setVocabTypingSubMode('pinyin')" id="btn-vtype-pinyin" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white transition">1. Gõ Pinyin</button>
+              <button onclick="setVocabTypingSubMode('en')" id="btn-vtype-en" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">2. Gõ Tiếng Anh</button>
+              <button onclick="setVocabTypingSubMode('zh')" id="btn-vtype-zh" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">3. Gõ Chữ Hán</button>
+            </div>
+            <span id="vtype-progress-counter" class="text-xs font-bold text-slate-400">Từ 1 / 10</span>
+          </div>
+
+          <div class="text-center py-2 space-y-2">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider" id="vtype-hint-top">Nghĩa tiếng Việt:</span>
+            <div class="text-3xl font-black text-slate-900 flex items-center justify-center gap-3">
+              <span id="vtype-main-prompt">截止日期</span>
+              <button onclick="playVocabTypingAudio()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-volume-high"></i>
+              </button>
+            </div>
+            <p class="text-xs text-slate-500 italic" id="vtype-sub-prompt">Tự nhớ và gõ phiên âm Pinyin của từ trên</p>
+          </div>
+
+          <div class="space-y-3">
+            <div class="relative">
+              <input type="text" id="vtype-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                placeholder="Gõ kết quả của bạn rồi nhấn Enter..."
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm focus:border-indigo-600 focus:outline-none transition shadow-inner font-mono" />
+              <button onclick="checkVocabTyping()" class="absolute right-1.5 top-1.5 bottom-1.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
+                Kiểm tra
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-400 text-center">Bấm phím <kbd class="px-1.5 py-0.5 bg-slate-100 border rounded text-slate-600 font-mono">Enter</kbd> để kiểm tra nhanh</p>
+          </div>
+
+          <div id="vtype-feedback" class="hidden p-4 rounded-2xl text-xs font-medium space-y-1"></div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+            <button onclick="prevVocabTyping()" class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition">Từ trước</button>
+            <button onclick="skipVocabTyping()" class="px-3 py-1.5 text-slate-400 hover:text-slate-600 text-xs font-semibold">Xem đáp án</button>
+            <button onclick="nextVocabTyping()" class="px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition">Từ kế tiếp</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode 3: Mastered Words Review View -->
+      <div id="dualvocab-review-view" class="hidden space-y-4">
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+          <div>
+            <h4 class="font-bold text-emerald-950 text-sm">Kho Từ Vựng Đã Ghi Nhớ Thành Công</h4>
+            <p class="text-xs text-emerald-700">Tất cả những từ bạn đã tích chọn "Đã thuộc" được lưu lại tại đây để bạn có thể ôn lại bất cứ lúc nào.</p>
+          </div>
+          <button onclick="exportWordList()" class="px-3 py-1.5 rounded-xl bg-white border border-emerald-300 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition">
+            <i class="fa-solid fa-download mr-1"></i> Sao chép danh sách
+          </button>
+        </div>
+        <div id="dualvocab-review-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- Mode 4: Interactive Match Quiz -->
+      <div id="dualvocab-match-view" class="hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-gamepad text-amber-500"></i> Thử Thách Trí Nhớ: Ghép Từ Tiếng Anh Với Tiếng Trung Tương Ứng
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Chọn từ tiếng Trung có cùng ý nghĩa với từ tiếng Anh hiển thị</p>
+          </div>
+          <button onclick="renderVocabMatchQuiz()" class="text-xs font-bold px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition">
+            <i class="fa-solid fa-arrows-rotate mr-1"></i> Tạo câu hỏi mới
+          </button>
+        </div>
+        <div id="dualvocab-match-container" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: CHINESE WORKPLACE & BROTHER WANG (TIẾNG TRUNG SẾP & NGOẠI KHÓA) -->
+    <section id="view-chinese" class="hidden space-y-6">
+      <div class="bg-gradient-to-r from-rose-950 via-slate-900 to-amber-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="max-w-2xl space-y-2">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-400/30">
+              <i class="fa-solid fa-user-tie mr-1.5"></i> Góc Tiếng Trung Sếp & Đồng Nghiệp
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Giao Tiếp Với Sếp: Công Việc, Team Building & Đời Thường</h2>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Học cách xưng hô thân mật tự nhiên kiểu <strong>"Anh lớn" (王哥 / 哥)</strong>, chúc rượu tinh tế trên bàn tiệc, rủ chơi thể thao cuối tuần và phản xạ báo cáo công việc chuẩn xác.
+            </p>
+          </div>
+
+          <div class="bg-white/10 backdrop-blur-md border border-white/15 p-4 rounded-2xl flex flex-col items-center justify-center min-w-[200px] text-center">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-rose-300">Phản xạ với Sếp Vương:</span>
+            <div class="text-lg font-bold text-white my-1">"辛苦了！大家辛苦了！"</div>
+            <button onclick="startVoiceCall('zh-boss-work')" class="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition">
+              <i class="fa-solid fa-microphone mr-1"></i> Luyện phản xạ với Sếp
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Selector -->
+      <div class="flex items-center space-x-2 overflow-x-auto pb-2 border-b border-slate-200">
+        <button onclick="filterChineseCategory('all')" id="cncat-all" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-xs whitespace-nowrap transition">Tất cả mẫu câu</button>
+        <button onclick="filterChineseCategory('brother')" id="cncat-brother" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition">Xưng hô "Anh Lớn" (王哥)</button>
+        <button onclick="filterChineseCategory('teambuilding')" id="cncat-teambuilding" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition">Team Building & Bàn tiệc</button>
+        <button onclick="filterChineseCategory('sports')" id="cncat-sports" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition">Thể thao & Cuối tuần</button>
+        <button onclick="filterChineseCategory('work')" id="cncat-work" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition">Văn phòng & Báo cáo</button>
+      </div>
+
+      <!-- Chinese Phrases Grid -->
+      <div id="chinese-phrases-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- TAB 4: QUICK REFLEX TRAINER (PHẢN XẠ 3S TIẾNG ANH) -->
+    <section id="view-drills" class="hidden space-y-6">
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div>
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-1 rounded-md">Luyện Phản Xạ 3 Giây</span>
+            <h3 class="text-xl font-black text-slate-900 mt-1">Đáp lại ngay không qua dịch nhẩm</h3>
+          </div>
+          <span id="drill-counter" class="text-xs font-bold px-3 py-1 bg-slate-100 text-slate-600 rounded-full">Câu 1 / 3</span>
         </div>
 
-        <!-- Khung đề bài hoàn toàn không lộ đáp án -->
-        <div class="text-center py-4 space-y-3">
-          <div class="text-sm font-medium text-slate-500" id="typingPromptHint">Nghĩa: Hạn chót</div>
-          <div class="text-3xl font-extrabold text-slate-900 flex items-center justify-center gap-3">
-            <span id="typingPromptMain">截止日期</span>
-            <button onclick="playCurrentAudio()" class="text-base text-blue-500 hover:text-blue-700" title="Nghe phát âm">
+        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200/80 space-y-4">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wide" id="drill-context">Tình huống: Quán Cà Phê</span>
+              <h4 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-1" id="drill-prompt">"Hi there! What can I get started for you today?"</h4>
+              <p class="text-xs text-slate-500 italic mt-0.5" id="drill-vn">(Nhân viên hỏi bạn muốn gọi đồ uống gì?)</p>
+            </div>
+            <button onclick="playDrillAudio()" class="w-10 h-10 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm shadow-xs transition">
               <i class="fa-solid fa-volume-high"></i>
             </button>
           </div>
-          <div class="text-xs text-slate-400" id="typingSubHint">Gợi ý: Hãy tự nhớ và gõ phiên âm Pinyin của từ trên</div>
+
+          <!-- Timer Bar -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs font-bold text-slate-500">
+              <span>Thời gian phản xạ:</span>
+              <span id="drill-timer-text" class="text-indigo-600">3s</span>
+            </div>
+            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+              <div id="drill-timer-bar" class="bg-indigo-600 h-full w-full transition-all duration-100"></div>
+            </div>
+          </div>
         </div>
 
-        <!-- Ô nhập câu trả lời -->
+        <!-- Interactive Voice Response Area -->
         <div class="space-y-3">
-          <div class="relative">
-            <input type="text" id="typingInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-              placeholder="Nhập câu trả lời của bạn vào đây..."
-              class="w-full px-4 py-3.5 border-2 border-slate-300 rounded-xl text-base focus:border-blue-600 focus:outline-none transition-all shadow-inner font-mono" />
-            <button onclick="checkTypingAnswer()" class="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
-              Kiểm tra
+          <div class="flex flex-wrap items-center gap-3">
+            <button onclick="startDrillSpeechRecognition()" id="drill-mic-btn" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-100 flex items-center gap-2 transition">
+              <i class="fa-solid fa-microphone"></i>
+              <span id="drill-mic-label">Bấm Mic Để Trả Lời</span>
+            </button>
+            <button onclick="revealDrillSuggestions()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition">
+              <i class="fa-solid fa-lightbulb text-amber-500 mr-1.5"></i>Gợi Ý Phản Xạ Chuẩn
+            </button>
+            <button onclick="nextDrill()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs ml-auto transition">
+              Câu tiếp theo <i class="fa-solid fa-arrow-right ml-1"></i>
             </button>
           </div>
-          <p class="text-xs text-slate-400 text-center">Nhấn phím <kbd class="px-1.5 py-0.5 bg-slate-100 border rounded text-slate-600">Enter</kbd> để kiểm tra nhanh</p>
-        </div>
 
-        <div id="typingFeedback" class="hidden p-4 rounded-xl text-sm space-y-2"></div>
+          <!-- Speech transcript result -->
+          <div id="drill-user-transcript" class="hidden p-3 rounded-xl bg-indigo-50/50 border border-indigo-100 text-xs text-indigo-950 font-medium">
+            <strong>Bạn vừa nói:</strong> "<span id="drill-spoken-text"></span>"
+          </div>
 
-        <div class="flex justify-between items-center pt-3 border-t">
-          <button onclick="prevTypingQuestion()" class="px-4 py-2 border rounded-lg text-sm hover:bg-slate-50">Câu trước</button>
-          <button onclick="skipTypingQuestion()" class="px-4 py-2 text-slate-500 text-sm hover:text-slate-700">Xem đáp án</button>
-          <button onclick="nextTypingQuestion()" class="px-5 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800">Câu tiếp theo</button>
+          <!-- Suggested Answers -->
+          <div id="drill-suggestions-box" class="hidden p-4 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-2 text-xs">
+            <span class="font-bold text-amber-900 block uppercase tracking-wide">3 cách phản xạ tự nhiên của người bản xứ:</span>
+            <ul id="drill-answers-list" class="space-y-1.5 text-slate-700"></ul>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 3. TAB 10 TỪ SONG NGỮ & TEST GHÉP CẶP -->
-    <section id="sec-vocab" class="hidden space-y-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-blue-50 p-4 rounded-xl border border-blue-200">
+    <!-- TAB 5: AI SCENARIO ROLEPLAY (NHẬP VAI AI THỰC TẾ) -->
+    <section id="view-roleplay" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-xs space-y-3">
+          <h3 class="font-extrabold text-sm text-slate-900 uppercase tracking-wide">Chọn Tình Huống Giao Tiếp:</h3>
+          <div class="space-y-2" id="scenario-list"></div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs flex flex-col h-[560px]">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div>
+                <h4 class="font-extrabold text-slate-900 text-sm" id="chat-partner-name">Sarah (Barista)</h4>
+                <p class="text-[11px] text-slate-500" id="chat-scenario-desc">Gọi cà phê tại quán địa phương</p>
+              </div>
+            </div>
+            <button onclick="resetConversation()" class="text-xs text-slate-400 hover:text-slate-600 transition">
+              <i class="fa-solid fa-arrows-rotate mr-1"></i> Bắt đầu lại
+            </button>
+          </div>
+
+          <div id="chat-messages" class="flex-1 overflow-y-auto py-4 space-y-3 custom-scrollbar"></div>
+
+          <div class="py-2 flex items-center gap-1.5 overflow-x-auto text-[11px]" id="chat-quick-hints"></div>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center gap-2">
+            <input type="text" id="chat-text-input" placeholder="Gõ câu trả lời của bạn..." onkeypress="handleChatKeyPress(event)" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+            <button onclick="startChatVoiceInput()" title="Nói bằng Micro" class="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs transition">
+              <i class="fa-solid fa-microphone"></i>
+            </button>
+            <button onclick="sendChatMessage()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-100 transition">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: SURVIVAL CHUNKS (MẪU CÂU SINH TỒN) -->
+    <section id="view-chunks" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-4">
         <div>
-          <h2 class="text-lg font-bold text-blue-900" id="vocabDayTitle">Gói Từ Vựng Ngày 1: Công Sở & Tiến Độ</h2>
-          <p class="text-sm text-blue-700">10 cặp từ song ngữ đối ứng. Tích chọn từ đã thuộc và làm quiz kiểm tra bên dưới!</p>
+          <h3 class="text-xl font-extrabold text-slate-900">Mẫu Câu Cố Định Sinh Tồn (Lexical Chunks)</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Không cần ghép ngữ pháp: chỉ cần học thuộc lòng cụm đầu câu là nói tự nhiên</p>
         </div>
-        <div class="flex gap-2">
-          <button onclick="prevDay()" class="px-3 py-1.5 bg-white border rounded-lg text-sm hover:bg-slate-50">Ngày trước</button>
-          <button onclick="nextDay()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Ngày kế tiếp</button>
-        </div>
-      </div>
-
-      <div id="vocabList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-
-      <div class="bg-white p-5 rounded-xl border shadow-sm mt-6">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="font-bold text-slate-900 flex items-center gap-2">
-            🎯 Bài Tập Ghi Nhớ Từ Vựng (Ghép Cặp Anh ⇋ Trung)
-          </h3>
-          <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">Trắc nghiệm phản xạ</span>
-        </div>
-        <div id="vocabQuizContainer" class="space-y-4"></div>
-      </div>
-    </section>
-
-    <!-- 4. TAB BÀI TẬP NGỮ PHÁP ĐA DẠNG -->
-    <section id="sec-grammar" class="hidden space-y-6">
-      <div class="flex flex-wrap gap-2">
-        <button onclick="filterGrammar('all')" class="px-3 py-1.5 rounded-lg text-sm bg-slate-800 text-white font-medium g-filter" data-type="all">Tất cả bài tập</button>
-        <button onclick="filterGrammar('scramble')" class="px-3 py-1.5 rounded-lg text-sm bg-white border hover:bg-slate-100 g-filter" data-type="scramble">Sắp xếp trật tự câu</button>
-        <button onclick="filterGrammar('blank')" class="px-3 py-1.5 rounded-lg text-sm bg-white border hover:bg-slate-100 g-filter" data-type="blank">Điền vào chỗ trống</button>
-        <button onclick="filterGrammar('error')" class="px-3 py-1.5 rounded-lg text-sm bg-white border hover:bg-slate-100 g-filter" data-type="error">Tìm & Sửa lỗi sai</button>
-      </div>
-
-      <div class="bg-white rounded-xl border p-6 shadow-sm space-y-6">
-        <div class="flex justify-between items-center border-b pb-4">
-          <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-100 text-indigo-800 rounded-md" id="exerciseTypeBadge">Sắp xếp câu</span>
-          <span class="text-sm text-slate-500" id="exerciseCounter">Câu 1/5</span>
-        </div>
-
-        <div id="grammarExerciseBody" class="space-y-5"></div>
-        <div id="grammarFeedback" class="hidden p-4 rounded-lg text-sm"></div>
-
-        <div class="flex justify-between items-center pt-4 border-t">
-          <button onclick="prevGrammar()" class="px-4 py-2 border rounded-lg text-sm hover:bg-slate-50">Câu trước</button>
-          <button onclick="nextGrammar()" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Câu kế tiếp</button>
+        <div class="flex items-center gap-2">
+          <input type="text" id="chunks-search-input" oninput="filterChunks()" placeholder="Tìm kiếm cụm từ..." class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500">
         </div>
       </div>
-    </section>
 
-    <!-- 5. TAB PHẢN XẠ 3 GIÂY -->
-    <section id="sec-reflex" class="hidden space-y-6">
-      <div class="bg-white p-6 rounded-xl border text-center max-w-xl mx-auto shadow-sm space-y-6">
-        <div class="text-sm font-medium text-amber-600">⚡ Thử Thách Phản Xạ 3 Giây</div>
-        <div class="text-2xl font-bold text-slate-900" id="reflexPrompt">"Tôi cần gửi báo cáo này trước 5 giờ chiều."</div>
-        <p class="text-sm text-slate-500">Nói to câu bằng tiếng Anh hoặc tiếng Trung trước khi mở đáp án!</p>
-        
-        <div class="flex justify-center gap-3">
-          <button onclick="showReflexAnswer()" class="px-4 py-2 bg-slate-100 border rounded-lg text-sm font-medium hover:bg-slate-200">Xem đáp án</button>
-          <button onclick="nextReflexDrill()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Câu tiếp theo</button>
-        </div>
-
-        <div id="reflexResult" class="hidden p-4 bg-slate-50 border rounded-lg text-left space-y-2 text-sm">
-          <div><strong class="text-blue-700">English:</strong> <span id="reflexEn">I need to submit this report before 5 PM.</span></div>
-          <div><strong class="text-red-700">中文:</strong> <span id="reflexZh">我需要在下午五点前提交这份报告。</span> (Wǒ xūyào zài xiàwǔ wǔ diǎn qián tíjiāo zhè fèn bàogào.)</div>
-        </div>
-      </div>
+      <div id="chunks-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
   </main>
 
-  <script>
-    // DỮ LIỆU CUỘC GỌI HỘI THOẠI 2 CHIỀU
-    const callScenarios = {
-      wang_drinking: {
-        name: "Anh Vương (王哥)",
-        role: "Sếp thân tình như người anh lớn • Bàn tiệc & Team building",
-        lang: "zh-CN",
-        avatar: "🍻",
-        openMsg: "小李啊，今晚大家玩得开心！来，咱们哥俩喝一杯！",
-        quickReplies: [
-          { text: "王哥，我敬您一杯，您随意，我干了！", pinyin: "Wáng gē, wǒ jìng nín yībēi, nín suíyì, wǒ gān le!", vn: "Anh Vương, em kính anh 1 ly, anh tùy ý, em xin cạn!" },
-          { text: "哥，您喝杯温水解解酒，千万别开车。", pinyin: "Gē, nín hē bēi wēnshuǐ jiějiǔ, qiānwàn bié kāichē.", vn: "Anh uống ly nước ấm giải rượu, uống rồi tuyệt đối đừng lái xe nhé." },
-          { text: "哥，我帮您叫个代驾吧？安全第一。", pinyin: "Gē, wǒ bāng nín jiào ge dàijià ba? Ānquán dì-yī.", vn: "Anh ơi em gọi xe lái hộ giúp anh nhé? An toàn là trên hết." }
-        ],
-        botReplies: [
-          "好兄弟！爽快！但平时工作别太累，有啥难处随时跟哥说！",
-          "还是你细心！行，听你的，今晚不开车！",
-          "辛苦小李了，回头发个微信报平安，早点休息！"
-        ]
-      },
-      wang_sports: {
-        name: "Anh Vương (王哥)",
-        role: "Sếp thân tình • Rủ chơi cầu lông / thể thao cuối tuần",
-        lang: "zh-CN",
-        avatar: "🏸",
-        openMsg: "小李，这周工作辛苦了。周末有空吗？要不要一起去打羽毛球活动活动？",
-        quickReplies: [
-          { text: "好啊哥！周六下午我有空，去哪儿打？", pinyin: "Hǎo a gē! Zhōuliù xiàwǔ wǒ yǒu kòng, qù nǎr dǎ?", vn: "Được quá anh ơi! Chiều thứ 7 em rảnh, mình đi đâu đánh ạ?" },
-          { text: "哥，场地定了吗？要不我提前去占场地？", pinyin: "Gē, chǎngdì dìng le ma? Yàobù wǒ tíqián qù zhàn chǎngdì?", vn: "Anh ơi sân đặt chưa? Hay để em đến trước giữ chỗ nhé?" },
-          { text: "哥这球打得真漂亮，改天再向您请教！", pinyin: "Gē zhè qiú dǎ de zhēn piàoliang, gǎitiān zài xiàng nín qǐngjiào!", vn: "Anh đánh quả bóng đẹp quá, hôm khác lại phải học hỏi anh thêm!" }
-        ],
-        botReplies: [
-          "行！就定周六下午三点，奥体中心见！",
-          "不用不用，我已经订好室内馆了，你带球拍过来就行！",
-          "哈哈，你小子打得也挺有冲劲！打完球哥请你吃夜宵！"
-        ]
-      },
-      en_progress: {
-        name: "David (Manager)",
-        role: "Project Review • Báo cáo tiến độ",
-        lang: "en-US",
-        avatar: "💼",
-        openMsg: "Hi! Can you give me a quick update on the latest project deadline?",
-        quickReplies: [
-          { text: "Everything is on schedule. We will deliver the first draft by 5 PM.", vn: "Mọi thứ đang đúng tiến độ. Chúng tôi sẽ gửi bản nháp trước 5 giờ chiều." },
-          { text: "We encountered a small issue, but we have already resolved it.", vn: "Chúng tôi gặp chút trục trặc nhỏ, nhưng đã giải quyết xong rồi." },
-          { text: "Could we reschedule our meeting to discuss the budget?", vn: "Chúng ta có thể đổi lịch họp để bàn thêm về ngân sách không?" }
-        ],
-        botReplies: [
-          "Great job! Keep me posted if you need extra support.",
-          "Good to know it's handled. Send me the summary once finished.",
-          "Sure, let's sync up tomorrow morning at 10 AM."
-        ]
-      },
-      en_negotiate: {
-        name: "Sarah (Client)",
-        role: "Contract Negotiation • Đàm phán hạn chót",
-        lang: "en-US",
-        avatar: "🤝",
-        openMsg: "Hello, we would like to request an extension on the delivery date.",
-        quickReplies: [
-          { text: "If we extend the deadline, could you confirm the final specs today?", vn: "Nếu dời hạn, phía bạn có thể xác nhận bản thông số cuối trong hôm nay được không?" },
-          { text: "I understand your situation, let me check with our team first.", vn: "Tôi hiểu tình hình của bạn, để tôi trao đổi nhanh với nội bộ nhóm trước." },
-          { text: "We can compromise on the date if the payment terms remain unchanged.", vn: "Chúng tôi có thể linh hoạt về thời hạn nếu điều khoản thanh toán giữ nguyên." }
-        ],
-        botReplies: [
-          "That sounds fair. I will send over the confirmed specifications in an hour.",
-          "Thank you for your flexibility, looking forward to your confirmation.",
-          "Agreed. We will keep the payment milestone as originally discussed."
-        ]
-      }
-    };
+  <!-- Hands-free Voice Call Modal (2-Way Call Simulation) -->
+  <div id="voice-call-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 text-white w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center justify-between min-h-[500px] relative">
+      <button onclick="closeVoiceCallModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
 
-    // DỮ LIỆU TỪ VỰNG SONG NGỮ
-    const vocabData = [
+      <div class="w-full text-center space-y-1">
+        <span class="text-[10px] uppercase font-bold tracking-widest text-emerald-400">Cuộc Gọi Thoại Rảnh Tay 2 Chiều</span>
+        <h3 class="text-lg font-black text-white" id="call-partner-title">Sarah (Người Bản Xứ - Tiếng Anh)</h3>
+        <select id="call-scenario-select" onchange="changeCallScenario()" class="mt-2 bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-1.5 focus:outline-none focus:border-emerald-500 w-full">
+          <option value="en-smalltalk">🇺🇸 Tiếng Anh: Trò chuyện xã giao hàng ngày</option>
+          <option value="en-coffee">🇺🇸 Tiếng Anh: Gọi món tại quán Cafe</option>
+          <option value="zh-boss-work">🇨🇳 Tiếng Trung: Sếp hỏi tiến độ công việc</option>
+          <option value="zh-boss-dinner">🇨🇳 Tiếng Trung: Anh Vương rủ ăn tối & Team building</option>
+          <option value="zh-boss-sports">🇨🇳 Tiếng Trung: Anh Vương rủ chơi cầu lông cuối tuần</option>
+        </select>
+      </div>
+
+      <div class="relative my-8 flex items-center justify-center">
+        <div id="call-wave-ring" class="absolute w-36 h-36 rounded-full bg-emerald-500/20 animate-pulse-ring hidden"></div>
+        <div class="w-24 h-24 rounded-3xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center text-white text-3xl shadow-xl shadow-emerald-500/20 z-10">
+          <i class="fa-solid fa-headset" id="call-avatar-icon"></i>
+        </div>
+      </div>
+
+      <div class="w-full text-center space-y-2">
+        <div id="call-status-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
+          Sẵn sàng kết nối
+        </div>
+        <div class="min-h-[60px] flex items-center justify-center p-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
+          <p class="text-xs text-slate-200 font-medium leading-relaxed italic" id="call-subtitles">
+            Bấm nút xanh bên dưới để bắt đầu cuộc trò chuyện...
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 mt-6">
+        <button onclick="toggleCallConnection()" id="call-connect-btn" class="w-16 h-16 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-xl shadow-lg shadow-emerald-500/30 transition transform active:scale-95">
+          <i class="fa-solid fa-phone" id="call-connect-icon"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+  <script>
+    /* ================================================================= */
+    /* DATA STRUCTURES: BILINGUAL VOCAB, CHINESE, GRAMMAR, DRILLS        */
+    /* ================================================================= */
+    window.activeVocabDay = 1;
+    window.activeDualVocabMode = 'cards';
+    window.masteredVocabIds = {};
+    window.streakDays = 1;
+    window.lastActiveDate = new Date().toISOString().slice(0, 10);
+    window.unlockedDays = [1];
+
+    // 7-Day Bilingual Packs (10 words/day)
+    const dailyBilingualVocab = [
       {
         day: 1,
         title: "Công Sở, Tiến Độ & Đàm Phán",
         words: [
-          { id: "d1_1", en: "deadline", ipa: "/ˈdedlaɪn/", zh: "截止日期", pinyin: "jiézhǐ rìqī", pinyinClean: "jiezhi riqi", vn: "Hạn chót", enEx: "We must meet the deadline.", zhEx: "我们必须赶在截止日期前完成。" },
-          { id: "d1_2", en: "feedback", ipa: "/ˈfiːdbæk/", zh: "反馈", pinyin: "fǎnkuì", pinyinClean: "fankui", vn: "Ý kiến phản hồi", enEx: "Thanks for your feedback.", zhEx: "感谢你的反馈。" },
-          { id: "d1_3", en: "efficiency", ipa: "/ɪˈfɪʃnsi/", zh: "效率", pinyin: "xiàolǜ", pinyinClean: "xiaolv", vn: "Hiệu suất, hiệu quả", enEx: "We must improve efficiency.", zhEx: "我们必须提高效率。" },
-          { id: "d1_4", en: "prioritize", ipa: "/praɪˈɔːrətaɪz/", zh: "优先处理", pinyin: "yōuxiān chǔlǐ", pinyinClean: "youxian chuli", vn: "Ưu tiên hàng đầu", enEx: "Let's prioritize this task.", zhEx: "我们先优先处理这个任务。" },
-          { id: "d1_5", en: "proposal", ipa: "/prəˈpəʊzl/", zh: "方案", pinyin: "fāng'àn", pinyinClean: "fangan", vn: "Bản kế hoạch, đề xuất", enEx: "I submitted the proposal.", zhEx: "我提交了方案。" },
-          { id: "d1_6", en: "reschedule", ipa: "/ˌriːˈskedʒuːl/", zh: "重新安排", pinyin: "chóngxīn ānpái", pinyinClean: "chongxin anpai", vn: "Đổi lịch hẹn", enEx: "Can we reschedule?", zhEx: "我们能重新安排吗？" },
-          { id: "d1_7", en: "confirm", ipa: "/kənˈfɜːrm/", zh: "确认", pinyin: "quèrèn", pinyinClean: "queren", vn: "Xác nhận", enEx: "Please confirm your time.", zhEx: "请确认你的时间。" },
-          { id: "d1_8", en: "progress", ipa: "/ˈprɑːɡres/", zh: "进度", pinyin: "jìndù", pinyinClean: "jindu", vn: "Tiến độ công việc", enEx: "How is the progress?", zhEx: "进度怎么样了？" },
-          { id: "d1_9", en: "wrap up", ipa: "/ræp ʌp/", zh: "收尾", pinyin: "shōuwěi", pinyinClean: "shouwei", vn: "Hoàn tất, kết thúc", enEx: "Let's wrap up now.", zhEx: "我们现在收尾吧。" },
-          { id: "d1_10", en: "reliable", ipa: "/rɪˈlaɪəbl/", zh: "靠谱", pinyin: "kàopǔ", pinyinClean: "kaopu", vn: "Đáng tin cậy", enEx: "He is very reliable.", zhEx: "他非常靠谱。" }
+          { id: "d1_1", en: "Deadline", phonetic: "/ˈded.laɪn/", zh: "截止日期", pinyin: "jiézhǐ rìqī", vn: "Hạn chót, thời hạn hoàn thành", enEx: "We must submit the proposal before the deadline.", zhEx: "我们必须在截止日期前提交方案。" },
+          { id: "d1_2", en: "Feedback", phonetic: "/ˈfiːd.bæk/", zh: "反馈", pinyin: "fǎnkuì", vn: "Ý kiến phản hồi, đánh giá", enEx: "I'd really appreciate your honest feedback on this draft.", zhEx: "很期待哥对这份初稿的真实反馈。" },
+          { id: "d1_3", en: "Efficiency", phonetic: "/ɪˈfɪʃ.ən.si/", zh: "效率", pinyin: "xiàolǜ", vn: "Hiệu suất làm việc, hiệu quả", enEx: "Automating this task will greatly boost team efficiency.", zhEx: "将这项任务自动化能大幅提升团队效率。" },
+          { id: "d1_4", en: "Prioritize", phonetic: "/praɪˈɔːr.ə.taɪz/", zh: "优先处理", pinyin: "yōuxiān chǔlǐ", vn: "Đặt lên ưu tiên hàng đầu", enEx: "Let's prioritize the client's urgent complaints today.", zhEx: "今天我们先优先处理客户的紧急投诉。" },
+          { id: "d1_5", en: "Proposal", phonetic: "/prəˈpoʊ.zəl/", zh: "方案 / 提案", pinyin: "fāng'àn / tí'àn", vn: "Đề án, kế hoạch đề xuất", enEx: "The leadership team approved our project proposal.", zhEx: "领导团队批准了我们的项目方案。" },
+          { id: "d1_6", en: "Reschedule", phonetic: "/ˌriːˈskedʒ.uːl/", zh: "改期 / 重新安排", pinyin: "gǎiqī / chóngxīn ānpái", vn: "Dời lịch, đổi giờ hẹn", enEx: "Could we reschedule our meeting to tomorrow morning?", zhEx: "我们能把会议改期到明天上午吗？" },
+          { id: "d1_7", en: "Confirm", phonetic: "/kənˈfɝːm/", zh: "确认", pinyin: "quèrèn", vn: "Xác nhận, kiểm tra lại cho chắc", enEx: "Let me check the numbers to confirm the final budget.", zhEx: "让我核对一下数据来确认最终预算。" },
+          { id: "d1_8", en: "Progress", phonetic: "/ˈprɑː.ɡres/", zh: "进度 / 进展", pinyin: "jìndù / jìnzhǎn", vn: "Tiến độ công việc", enEx: "Everything is progressing smoothly according to plan.", zhEx: "一切都在按计划顺利推进进度。" },
+          { id: "d1_9", en: "Wrap up", phonetic: "/ræp ʌp/", zh: "收尾 / 结束", pinyin: "shōuwěi / wánchéng", vn: "Hoàn tất, chốt lại", enEx: "Let's wrap up this meeting in five minutes.", zhEx: "咱们争取在五分钟内把会议收尾。" },
+          { id: "d1_10", en: "Colleague", phonetic: "/ˈkɑː.liːɡ/", zh: "同事", pinyin: "tóngshì", vn: "Đồng nghiệp", enEx: "He is a reliable colleague who always lends a hand.", zhEx: "他是一位非常靠谱、乐于助人的好同事。" }
         ]
       },
       {
         day: 2,
-        title: "Team Building, Ẩm Thực & Ngoại Khóa",
+        title: "Team Building, Bàn Tiệc & Ngoại Khóa",
         words: [
-          { id: "d2_1", en: "treat", ipa: "/triːt/", zh: "请客", pinyin: "qǐngkè", pinyinClean: "qingke", vn: "Đãi, bao chầu", enEx: "Today is my treat!", zhEx: "今天我请客！" },
-          { id: "d2_2", en: "toast", ipa: "/təʊst/", zh: "敬酒", pinyin: "jìngjiǔ", pinyinClean: "jingjiu", vn: "Kính rượu, nâng ly", enEx: "Let's propose a toast.", zhEx: "我们敬领导一杯。" },
-          { id: "d2_3", en: "specialty", ipa: "/ˈspeʃəlti/", zh: "特色菜", pinyin: "tèsè cài", pinyinClean: "tese cai", vn: "Món đặc sản", enEx: "What is the specialty?", zhEx: "这里的特色菜是什么？" },
-          { id: "d2_4", en: "atmosphere", ipa: "/ˈætməsfɪr/", zh: "氛围", pinyin: "fēnwéi", pinyinClean: "fenwei", vn: "Bầu không khí", enEx: "Great atmosphere!", zhEx: "这里的氛围真好。" },
-          { id: "d2_5", en: "unwind", ipa: "/ˌʌnˈwaɪnd/", zh: "放松", pinyin: "fàngsōng", pinyinClean: "fangsong", vn: "Thư giãn, xả hơi", enEx: "Time to unwind.", zhEx: "是时候好好放松了。" }
+          { id: "d2_1", en: "Treat / My treat", phonetic: "/triːt/", zh: "请客", pinyin: "qǐngkè", vn: "Bao chầu, mời, đãi", enEx: "Put your wallet away, lunch is my treat today!", zhEx: "把钱包收起来，今天中午我请客！" },
+          { id: "d2_2", en: "Toast / Cheers", phonetic: "/toʊst/ - /tʃɪərz/", zh: "敬酒 / 干杯", pinyin: "jìngjiǔ / gānbēi", vn: "Kính rượu / Cụng ly cạn chén", enEx: "Let's raise a toast to our successful project launch!", zhEx: "让我们为项目的成功上线共同敬一杯！" },
+          { id: "d2_3", en: "Atmosphere", phonetic: "/ˈæt.məs.fɪr/", zh: "气氛 / 氛围", pinyin: "qìfēn / fènwéi", vn: "Bầu không khí", enEx: "The atmosphere at tonight's dinner was so warm and lively.", zhEx: "今晚聚餐的气氛特别温馨热闹。" },
+          { id: "d2_4", en: "Specialty", phonetic: "/ˈspeʃ.əl.ti/", zh: "特色菜 / 特产", pinyin: "tèsè cài / tèchǎn", vn: "Món đặc sản trứ danh", enEx: "You must try this local specialty; it's delicious!", zhEx: "哥你一定要尝尝这道特色菜，特别地道！" },
+          { id: "d2_5", en: "Recharge", phonetic: "/ˌriːˈtʃɑːrdʒ/", zh: "充电 / 放松休息", pinyin: "chōngdiàn / fàngsōng", vn: "Nạp lại năng lượng", enEx: "Weekends are meant to recharge for the week ahead.", zhEx: "周末就是用来好好充电，迎接新的一周。" },
+          { id: "d2_6", en: "Gathering", phonetic: "/ˈɡæð.ɚ.ɪŋ/", zh: "聚会 / 聚餐", pinyin: "jùhuì / jùcān", vn: "Buổi tụ họp, liên hoan", enEx: "Our team gathering was both fun and productive.", zhEx: "我们团队的这次聚会既开心又增进感情。" },
+          { id: "d2_7", en: "Appreciate", phonetic: "/əˈpriː.ʃi.eɪt/", zh: "感谢 / 感激", pinyin: "gǎnxiè / gǎnjī", vn: "Trân trọng, cảm kích", enEx: "I really appreciate your kind guidance on this project.", zhEx: "我特别感谢哥在这个项目上一路对我的指点。" },
+          { id: "d2_8", en: "Takeaway", phonetic: "/ˈteɪk.ə.weɪ/", zh: "打包", pinyin: "dǎbāo", vn: "Gói đồ ăn mang về", enEx: "There's so much good food left, let's get it to go.", zhEx: "还有好多好菜没吃完，咱们打包带走吧。" },
+          { id: "d2_9", en: "Sporty", phonetic: "/ˈspɔːr.t̬i/", zh: "爱运动 / 有活力的", pinyin: "ài yùndòng", vn: "Năng động, thích thể thao", enEx: "Our boss is very sporty and plays badminton every Saturday.", zhEx: "王哥特别爱运动，每周六都去打羽毛球。" },
+          { id: "d2_10", en: "Unwind", phonetic: "/ʌnˈwaɪnd/", zh: "解乏 / 放松心情", pinyin: "jiěfá / fàngsōng xīnqíng", vn: "Xả stress, thư giãn sau giờ làm", enEx: "Playing sports after work helps me unwind completely.", zhEx: "下班后运动一场能彻底解乏放松。" }
+        ]
+      },
+      {
+        day: 3,
+        title: "Tác Phong & Kỹ Năng Con Người",
+        words: [
+          { id: "d3_1", en: "Reliable", phonetic: "/rɪˈlaɪ.ə.bəl/", zh: "靠谱 / 值得信赖", pinyin: "kàopǔ / zhíde xìnlài", vn: "Đáng tin cậy, chắc chắn", enEx: "He is considered the most reliable team member here.", zhEx: "大家都觉得他是部门里最靠谱的同事。" },
+          { id: "d3_2", en: "Proactive", phonetic: "/proʊˈæk.tɪv/", zh: "积极主动", pinyin: "jījí zhǔdòng", vn: "Chủ động, có tinh thần tiên phong", enEx: "Being proactive always impresses senior management.", zhEx: "工作积极主动总能赢得领导的赏识。" },
+          { id: "d3_3", en: "Misunderstanding", phonetic: "/ˌmɪs.ʌn.dɚˈstæn.dɪŋ/", zh: "误会", pinyin: "wùhuì", vn: "Sự hiểu lầm", enEx: "Let's talk face-to-face to clear up any misunderstanding.", zhEx: "咱们当面沟通一下，把误会解开。" },
+          { id: "d3_4", en: "Compromise", phonetic: "/ˈkɑːm.prə.maɪz/", zh: "折中 / 妥协", pinyin: "zhézhōng / tuǒxié", vn: "Dung hòa, nhượng bộ đôi bên", enEx: "Both parties reached a sensible compromise on pricing.", zhEx: "双方在价格方案上达成了一个合理的折中。" },
+          { id: "d3_5", en: "Straightforward", phonetic: "/ˌstreɪtˈfɔːr.wɚd/", zh: "直爽 / 直接", pinyin: "zhíshuǎng / zhíjiē", vn: "Thẳng thắn, không vòng vo", enEx: "I appreciate his straightforward communication style.", zhEx: "我很欣赏他直爽、不拐弯抹角的沟通风格。" },
+          { id: "d3_6", en: "Patience", phonetic: "/ˈpeɪ.ʃəns/", zh: "耐心", pinyin: "nàixīn", vn: "Sự kiên nhẫn, nhẫn nại", enEx: "Learning two languages simultaneously requires great patience.", zhEx: "同时学两门外语确实需要极大的耐心。" },
+          { id: "d3_7", en: "Flexible", phonetic: "/ˈflek.sə.bəl/", zh: "灵活 / 变通", pinyin: "línghuó / biàntōng", vn: "Linh hoạt, uyển chuyển", enEx: "We need to remain flexible as client requirements change.", zhEx: "客户需求变了，我们的应对策略也要保持灵活。" },
+          { id: "d3_8", en: "Sincere", phonetic: "/sɪnˈsɪr/", zh: "真诚", pinyin: "zhēnchéng", vn: "Chân thành, thật lòng", enEx: "A sincere attitude resolves almost any workplace conflict.", zhEx: "真诚的态度能化解职场上的绝大部分矛盾。" },
+          { id: "d3_9", en: "Enthusiastic", phonetic: "/ɪnˌθuː.ziˈæs.tɪk/", zh: "热情 / 积极", pinyin: "rèqíng / jījí", vn: "Nhiệt huyết, hào hứng", enEx: "The new teammate is extremely enthusiastic about our mission.", zhEx: "新同事对我们的业务方向充满了热情。" },
+          { id: "d3_10", en: "Professional", phonetic: "/prəˈfeʃ.ən.əl/", zh: "专业", pinyin: "zhuānyè", vn: "Chuyên nghiệp, chuẩn mực", enEx: "Always maintain a professional tone in written communications.", zhEx: "在商务邮件往来中要始终保持专业的语气。" }
+        ]
+      },
+      {
+        day: 4,
+        title: "Họp Hành, Động Não & Mục Tiêu",
+        words: [
+          { id: "d4_1", en: "Brainstorm", phonetic: "/ˈbreɪn.stɔːrm/", zh: "头脑风暴 / 集思广益", pinyin: "tóunǎo fēngbào", vn: "Động não, thảo luận tìm ý tưởng", enEx: "Let's gather for an hour to brainstorm marketing ideas.", zhEx: "咱们碰一个小时，头脑风暴一下营销点子。" },
+          { id: "d4_2", en: "Consensus", phonetic: "/kənˈsen.səs/", zh: "共识", pinyin: "gòngshí", vn: "Sự đồng thuận, nhất trí chung", enEx: "After a long discussion, the board reached a consensus.", zhEx: "经过长久的讨论，董事会终于达成了共识。" },
+          { id: "d4_3", en: "Agenda", phonetic: "/əˈdʒen.də/", zh: "议程 / 会议日程", pinyin: "yìchéng", vn: "Chương trình họp, lịch thảo luận", enEx: "What is the primary item on today's agenda?", zhEx: "今天会议议程上的第一大重点是什么？" },
+          { id: "d4_4", en: "Feasible", phonetic: "/ˈfiː.zə.bəl/", zh: "可行 / 做得到的", pinyin: "kěxíng", vn: "Khả thi, làm được trong thực tế", enEx: "Is this rollout plan economically and technically feasible?", zhEx: "这个落地计划在技术和成本上可行吗？" },
+          { id: "d4_5", en: "Bottleneck", phonetic: "/ˈbɑː.t̬əl.nek/", zh: "瓶颈", pinyin: "píngjǐng", vn: "Điểm nghẽn, khâu ách tắc", enEx: "Supply chain delays represent the main bottleneck right now.", zhEx: "供应链延误是目前项目最大的瓶颈。" },
+          { id: "d4_6", en: "Follow up", phonetic: "/ˈfɑː.loʊ.ʌp/", zh: "跟进", pinyin: "gēnjìn", vn: "Theo dõi sát sao tiến độ", enEx: "I will follow up with the vendor by 3 PM.", zhEx: "我会在下午三点前跟进供应商那边的进展。" },
+          { id: "d4_7", en: "Urgent", phonetic: "/ˈɝː.dʒənt/", zh: "紧急 / 加急", pinyin: "jǐnjí / jiājí", vn: "Khẩn cấp, gấp rút", enEx: "This is an urgent matter that requires immediate attention.", zhEx: "这是件紧急事务，需要立即处理。" },
+          { id: "d4_8", en: "Summary", phonetic: "/ˈsʌm.ɚ.i/", zh: "总结 / 摘要", pinyin: "zǒngjié", vn: "Bản tóm tắt, tổng kết", enEx: "Could you send a quick summary email after the meeting?", zhEx: "会后麻烦发一份简短的会议总结邮件。" },
+          { id: "d4_9", en: "Delegate", phonetic: "/ˈdel.ə.ɡeɪt/", zh: "分派 / 授权", pinyin: "fēnpài / shòuquán", vn: "Giao việc, ủy quyền", enEx: "A good leader knows how to delegate tasks effectively.", zhEx: "优秀的领导懂得如何高效地向团队分派任务。" },
+          { id: "d4_10", en: "Objective", phonetic: "/əbˈdʒek.tɪv/", zh: "目标", pinyin: "mùbiāo", vn: "Mục tiêu cụ thể", enEx: "Our core objective this quarter is expanding customer retention.", zhEx: "本季度我们的核心目标是提高客户留存率。" }
         ]
       }
     ];
 
-    // DỮ LIỆU BÀI TẬP NGỮ PHÁP ĐA DẠNG
-    const grammarExercises = [
+    // Chinese Workplace Phrases
+    let activeChineseCat = 'all';
+    const chinesePhrases = [
+      { id: "cn_1", cat: "brother", zh: "王哥，叫我小李就行！", pinyin: "Wáng gē, jiào wǒ Xiǎo Lǐ jiù xíng!", vn: "Anh Vương, anh cứ gọi em là Tiểu Lý là được ạ!", context: "Xưng hô khi mới gặp hoặc khi sếp quá khách sáo" },
+      { id: "cn_2", cat: "brother", zh: "哥，有什么需要随时叫我！", pinyin: "Gē, yǒu shénme xūyào suíshí jiào wǒ!", vn: "Anh ơi, có việc gì cần anh cứ ới em bất cứ lúc nào nhé!", context: "Thể hiện sự chủ động, nhiệt tình với sếp lớn" },
+      { id: "cn_3", cat: "teambuilding", zh: "哥，我敬您一杯，您随意，我干了！", pinyin: "Gē, wǒ jìng nín yì bēi, nín suíyì, wǒ gān le!", vn: "Anh, em kính anh một ly, anh cứ tùy ý nhé, em xin phép cạn ly!", context: "Chúc rượu kinh điển: vừa tôn trọng vừa không ép sếp uống nhiều" },
+      { id: "cn_4", cat: "teambuilding", zh: "哥，您喝杯温水解解酒。", pinyin: "Gē, nín hē bēi wēnshuǐ jiějiě jiǔ.", vn: "Anh ơi, anh uống cốc nước ấm này cho đỡ say rượu nhé.", context: "Quan tâm tinh tế sau chầu tiệc liên hoan" },
+      { id: "cn_5", cat: "teambuilding", zh: "哥您喝酒了千万别开车，我帮您叫个代驾吧？", pinyin: "Gē nín hējiǔ le qiānwàn bié kāichē, wǒ bāng nín jiào ge dàijià ba?", vn: "Anh đã uống rượu tuyệt đối đừng tự lái xe, để em gọi tài xế lái hộ cho anh nhé?", context: "Tác phong chu đáo, ghi điểm tuyệt đối" },
+      { id: "cn_6", cat: "sports", zh: "哥，周末有空一起去打羽毛球吗？", pinyin: "Gē, zhōumò yǒu kòng yìqǐ qù dǎ yǔmáoqiú ma?", vn: "Anh ơi, cuối tuần anh có rảnh anh em mình đi đánh cầu lông nhé?", context: "Rủ sếp giao lưu thể thao ngoài giờ làm" },
+      { id: "cn_7", cat: "sports", zh: "哥这球打得真漂亮！", pinyin: "Gē zhè qiú dǎ de zhēn piàoliang!", vn: "Anh đánh quả cầu này đẹp mắt quá!", context: "Cổ vũ sếp trên sân thể thao cực tự nhiên" },
+      { id: "cn_8", cat: "work", zh: "好的哥，这事交给我，您放心！", pinyin: "Hǎo de gē, zhè shì jiāo gěi wǒ, nín fàngxīn!", vn: "Dạ vâng anh, việc này cứ để em lo, anh cứ yên tâm ạ!", context: "Tiếp nhận chỉ đạo của sếp mang lại cảm giác tin cậy" },
+      { id: "cn_9", cat: "work", zh: "哥，方案做好了，您方便时帮我把把关？", pinyin: "Gē, fāng'àn zuò hǎo le, nín fāngbiàn shí bāng wǒ bǎbǎ guān?", vn: "Anh ơi, bản kế hoạch em làm xong rồi, lúc nào tiện anh kiểm tra duyệt giúp em với nhé?", context: "Cách xin ý kiến sếp khiêm tốn và gần gũi (把把关: kiểm tra duyệt chốt)" },
+      { id: "cn_10", cat: "work", zh: "哥，辛苦了！大家辛苦了！", pinyin: "Gē, xīnkǔ le! Dàjiā xīnkǔ le!", vn: "Anh vất vả rồi ạ! Mọi người vất vả rồi!", context: "Câu chào kinh điển trước khi tan sở hoặc xong dự án" }
+    ];
+
+    let activeGrammarTrack = 'daily';
+    let activeGrammarMode = 'lessons';
+
+    const dailyGrammarLessons = [
       {
-        type: "scramble",
-        typeName: "Sắp xếp trật tự câu",
-        prompt: "Sắp xếp các từ sau thành câu báo cáo tiến độ đúng ngữ pháp:",
-        words: ["the report", "already", "I", "have", "submitted", "to the manager"],
-        correctOrder: ["I", "have", "already", "submitted", "the report", "to the manager"],
-        explanation: "Cấu trúc Hiện tại hoàn thành: S + have/has + already + V3/ed. Trạng từ 'already' đứng sau trợ động từ 'have'."
+        id: "dg_1",
+        title: "Câu Hỏi Gián Tiếp Lịch Sự (Embedded Questions)",
+        concept: "Người bản xứ hạn chế hỏi trực tiếp 'Where is the station?'. Thay vào đó, họ dùng 'Could you tell me where the station IS?'. Lưu ý: Mệnh đề sau không đảo trợ động từ!",
+        structure: "Could you tell me / Do you know + Wh-word + Subject + Verb?",
+        natural: "Do you know what time the supermarket closes?",
+        unnatural: "Do you know what time does the supermarket close? (Lỗi: đảo 'does' vào mệnh đề phụ)"
       },
       {
-        type: "blank",
-        typeName: "Điền vào chỗ trống",
-        prompt: "Chọn thì động từ chính xác cho câu sau:",
-        sentence: "By the time the meeting started, we ________ all the slides.",
-        options: ["have prepared", "had prepared", "prepare", "are preparing"],
-        answerIndex: 1,
-        explanation: "Thì Quá khứ hoàn thành (had prepared) dùng để diễn tả hành động đã hoàn thành trước một sự kiện trong quá khứ (by the time the meeting started)."
-      },
-      {
-        type: "error",
-        typeName: "Tìm & Sửa lỗi sai",
-        prompt: "Chọn vị trí có lỗi ngữ pháp trong câu điều kiện sau:",
-        sentence: "If we (A) will sign the contract today, they (B) will deliver the goods (C) next week (D).",
-        options: ["(A) will sign", "(B) will deliver", "(C) goods", "(D) next week"],
-        answerIndex: 0,
-        explanation: "Trong mệnh đề điều kiện loại 1 (If-clause), bắt buộc dùng Hiện tại đơn (If we sign...), không dùng thì tương lai (will sign)."
-      },
-      {
-        type: "scramble",
-        typeName: "Sắp xếp câu (Tiếng Trung)",
-        prompt: "Sắp xếp câu nâng ly lịch sự với sếp:",
-        words: ["敬您", "王哥，", "一杯，", "我", "您随意！"],
-        correctOrder: ["王哥，", "我", "敬您", "一杯，", "您随意！"],
-        explanation: "Mẫu câu kính rượu thân mật: [Xưng hô] + 我敬您一杯 + 您随意 (Em kính anh một ly, anh uống tùy lượng ạ)."
-      },
-      {
-        type: "blank",
-        typeName: "Điền trợ từ tiếng Trung",
-        prompt: "Chọn trợ từ thích hợp điền vào chỗ trống:",
-        sentence: "我已经把明天的会议方案准备好 ________。",
-        options: ["过", "着", "了", "在"],
-        answerIndex: 2,
-        explanation: "Cấu trúc câu chữ 把 biểu thị hoàn tất kết quả: 把 + tân ngữ + động từ + 好 + 了."
+        id: "dg_2",
+        title: "Hiện Tại Hoàn Thành: Trải Nghiệm vs. Thời Điểm Cụ Thể",
+        concept: "Nói về việc đã làm nhưng KHÔNG nêu rõ thời gian -> Dùng Present Perfect (I've lived here for 2 years). Nếu có mốc cụ thể (yesterday, last month) -> Bắt buộc dùng Quá khứ đơn!",
+        structure: "Have/Has + V3/ed (kết quả kéo dài hoặc trải nghiệm)",
+        natural: "I have lived in this city for 2 years. / I moved here in 2024.",
+        unnatural: "I live here for 2 years. (Dịch nhẩm từ tiếng Việt)"
       }
     ];
 
-    // DỮ LIỆU PHẢN XẠ 3 GIÂY
-    const reflexData = [
-      { vn: "Tôi cần gửi báo cáo này trước 5 giờ chiều.", en: "I need to submit this report before 5 PM.", zh: "我需要在下午五点前提交这份报告。" },
-      { vn: "Hôm nay tôi mời, mọi người cứ tự nhiên gọi món nhé!", en: "Today is my treat, feel free to order whatever you like!", zh: "今天我请客，大家随意点菜！" },
-      { vn: "Anh uống rượu rồi thì đừng lái xe, để em gọi xe hộ.", en: "You've been drinking, please don't drive. Let me call a driver.", zh: "哥您喝酒了千万别开车，我帮您叫个代驾吧。" }
+    const advancedGrammarLessons = [
+      {
+        id: "ag_1",
+        title: "Đảo Ngữ Phủ Định (Negative Inversion)",
+        concept: "Khi các phó từ phủ định đứng đầu câu (Seldom, Rarely, Under no circumstances, Only by), mệnh đề chính phải đảo trợ động từ lên trước chủ ngữ.",
+        structure: "Negative Adverb + Auxiliary (Trợ ĐT) + S + Main Verb",
+        natural: "Under no circumstances are employees permitted to disclose confidential data.",
+        unnatural: "Under no circumstances employees are permitted... (Thiếu đảo ngữ)"
+      },
+      {
+        id: "ag_2",
+        title: "Thể Giả Định (Subjunctive Mood)",
+        concept: "Sau các tính từ cấp thiết (imperative, vital, essential, crucial), động từ trong mệnh đề that luôn ở dạng nguyên thể không chia (Bare Infinitive) cho mọi ngôi!",
+        structure: "It is imperative that + S + (should) + V-bare",
+        natural: "It is imperative that every board member BE present at tomorrow's meeting.",
+        unnatural: "It is imperative that every member must be / is present."
+      }
     ];
 
-    // BIẾN TRẠNG THÁI TOÀN CỤC
-    let isCallActive = false;
-    let currentDayIndex = 0;
-    let currentTypingIndex = 0;
-    let typingMode = 'pinyin';
-    let currentGrammarIdx = 0;
-    let filteredGrammar = [...grammarExercises];
-    let selectedScramble = [];
-    let currentReflexIdx = 0;
-    let mastered = JSON.parse(localStorage.getItem('masteredVocab') || "[]");
+    // MỞ RỘNG ĐỦ 5 CÂU BÀI TẬP TRẮC NGHIỆM CHO MỖI PHẦN
+    const dailyQuizQuestions = [
+      {
+        q: "Chọn câu hỏi lịch sự đúng ngữ pháp khi hỏi thông tin từ người lạ:",
+        options: [
+          "Could you tell me where is the nearest pharmacy?",
+          "Could you tell me where the nearest pharmacy is?",
+          "Can you tell where is the pharmacy near here?"
+        ],
+        correct: 1,
+        exp: "Trong câu hỏi gián tiếp, trật tự từ sau từ để hỏi là khẳng định: 'where + the nearest pharmacy (S) + is (V)'."
+      },
+      {
+        q: "Chọn câu đúng khi diễn tả bạn đã làm việc tại công ty này được 3 năm và hiện vẫn đang làm:",
+        options: [
+          "I work in this company for three years.",
+          "I have worked in this company for three years.",
+          "I worked in this company for three years ago."
+        ],
+        correct: 1,
+        exp: "Hành động bắt đầu trong quá khứ và vẫn tiếp diễn ở hiện tại với 'for 3 years' dùng thì Hiện tại hoàn thành."
+      },
+      {
+        q: "Chọn cách hỏi lịch sự về giờ tàu chạy:",
+        options: [
+          "Do you know when does the last train leave?",
+          "Do you know when the last train leaves?",
+          "Could you tell when leaves the last train?"
+        ],
+        correct: 1,
+        exp: "Sau 'Do you know when', không mượn trợ động từ 'does', động từ chia theo ngôi thứ 3 số ít: 'leaves'."
+      },
+      {
+        q: "Chọn câu đúng khi nói về một sự việc xảy ra tại mốc thời gian xác định trong quá khứ:",
+        options: [
+          "I have sent the contract yesterday.",
+          "I sent the contract yesterday.",
+          "I was sending the contract yesterday already."
+        ],
+        correct: 1,
+        exp: "Có mốc thời gian xác định trong quá khứ ('yesterday') thì bắt buộc dùng Quá khứ đơn (sent), không dùng Hiện tại hoàn thành."
+      },
+      {
+        q: "Bạn muốn nhờ đồng nghiệp chỉ cách vận hành máy in một cách gián tiếp lịch sự:",
+        options: [
+          "Could you explain to me how does this printer work?",
+          "Could you explain to me how this printer works?",
+          "Can you explain me how is this printer working?"
+        ],
+        correct: 1,
+        exp: "Mệnh đề danh ngữ phụ sau 'how' giữ nguyên thứ tự S + V: 'this printer works'."
+      }
+    ];
 
-    // KHỞI ĐỘNG
-    window.onload = function() {
-      changeScenario();
-      initTyping();
-      renderVocab();
-      renderGrammar();
-      renderReflex();
-      document.getElementById('masteredCount').innerText = mastered.length;
-    };
+    const advQuizQuestions = [
+      {
+        q: "Chọn phương án đảo ngữ chính xác cho câu: 'Seldom _______ such extraordinary talent.'",
+        options: [
+          "we have witnessed",
+          "have we witnessed",
+          "we witnessed"
+        ],
+        correct: 1,
+        exp: "Khi phó từ phủ định 'Seldom' đứng đầu câu, phải đảo trợ động từ lên trước chủ ngữ: 'have we witnessed'."
+      },
+      {
+        q: "Chọn phương án đúng theo thể giả định (Subjunctive Mood): 'It is crucial that he _______ the report before noon.'",
+        options: [
+          "submits",
+          "submit",
+          "must submit"
+        ],
+        correct: 1,
+        exp: "Sau 'It is crucial that + S', động từ luôn ở dạng nguyên thể không 'to' (V-bare): 'submit' dù chủ ngữ là 'he'."
+      },
+      {
+        q: "Hoàn thiện câu đảo ngữ nhấn mạnh quy tắc bảo mật: 'Under no circumstances _______ share this password.'",
+        options: [
+          "you should",
+          "should you",
+          "you must"
+        ],
+        correct: 1,
+        exp: "Cụm 'Under no circumstances' (Trong bất kỳ hoàn cảnh nào cũng không) bắt buộc đảo trợ động từ 'should' lên trước 'you'."
+      },
+      {
+        q: "Chọn câu đúng theo cấu trúc thức giả định: 'The manager insisted that the meeting _______ rescheduled.'",
+        options: [
+          "is",
+          "be",
+          "was"
+        ],
+        correct: 1,
+        exp: "Sau động từ yêu cầu/đề xuất 'insisted that + S', động từ to be luôn ở dạng nguyên thể: 'be'."
+      },
+      {
+        q: "Chọn câu đảo ngữ đúng nghĩa: 'Chỉ bằng cách làm việc chăm chỉ chúng ta mới đạt mục tiêu':",
+        options: [
+          "Only by working hard can we achieve our goals.",
+          "Only by working hard we can achieve our goals.",
+          "Only by working hard achieve we our goals."
+        ],
+        correct: 0,
+        exp: "Khi 'Only by + V-ing' đứng đầu câu, mệnh đề chính phải đảo trợ động từ: 'can we achieve'."
+      }
+    ];
 
-    // CHUYỂN ĐỔI TAB
-    function switchTab(tab) {
-      ['call', 'typing', 'vocab', 'grammar', 'reflex'].forEach(t => {
-        document.getElementById(`sec-${t}`).classList.add('hidden');
-        document.getElementById(`tab-${t}`).className = 'py-3 text-slate-500 hover:text-slate-900 whitespace-nowrap';
-      });
-      document.getElementById(`sec-${tab}`).classList.remove('hidden');
-      document.getElementById(`tab-${tab}`).className = 'py-3 tab-active whitespace-nowrap';
+    // Reflex Drills
+    let currentDrillIndex = 0;
+    const reflexDrills = [
+      {
+        context: "Quán Cafe / Trưa",
+        prompt: "Hi there! What can I get started for you today?",
+        vn: "Nhân viên hỏi bạn muốn gọi gì hôm nay?",
+        answers: [
+          "Could I get an iced Americano to go, please?",
+          "Can I just have a medium latte with oat milk?",
+          "Just a black coffee for here, thanks!"
+        ]
+      },
+      {
+        context: "Siêu thị / Thanh toán",
+        prompt: "Did you find everything you were looking for today?",
+        vn: "Thu ngân hỏi bạn có tìm đủ đồ cần mua không?",
+        answers: [
+          "Yes, I got everything, thank you!",
+          "Yes, all good, thanks for asking!",
+          "Actually, I couldn't find the butter, where would that be?"
+        ]
+      },
+      {
+        context: "Đồng nghiệp / Gặp ở sảnh",
+        prompt: "Hey! How's your week treating you so far? Keeping busy?",
+        vn: "Đồng nghiệp hỏi thăm tình hình tuần này thế nào, có bận không?",
+        answers: [
+          "Pretty busy as always, but hanging in there! How about you?",
+          "Same as always! Just trying to wrap up a few deadlines.",
+          "Not too bad! Counting down the days to the weekend!"
+        ]
+      }
+    ];
+
+    // Survival Chunks
+    const survivalChunks = [
+      { en: "Could I get a...", vn: "Cho tôi xin một... (gọi đồ ăn/uống)", cat: "Cafe & Ăn uống", ex: "Could I get a flat white to take away, please?" },
+      { en: "Do you happen to have...", vn: "Ở đây mình có bán... không ạ?", cat: "Mua sắm", ex: "Do you happen to have gluten-free bread?" },
+      { en: "What's the best way to get to...", vn: "Đi đường nào tiện nhất đến...", cat: "Hỏi đường", ex: "What's the best way to get to the central station?" },
+      { en: "I was wondering if you could...", vn: "Không biết bạn có thể giúp tôi... (nhờ vả lịch sự)", cat: "Công sở", ex: "I was wondering if you could review this report for me?" },
+      { en: "Sorry to bother you, but...", vn: "Xin lỗi làm phiền bạn, nhưng...", cat: "Giao tiếp lịch sự", ex: "Sorry to bother you, but is anyone sitting here?" },
+      { en: "Just to confirm...", vn: "Chỉ để xác nhận lại cho chắc...", cat: "Công sở", ex: "Just to confirm, the meeting starts at 2 PM?" }
+    ];
+
+    // Roleplay Scenarios
+    const roleplayScenarios = [
+      {
+        id: "sc_coffee",
+        partner: "Sarah (Barista)",
+        desc: "Gọi đồ uống tại quán cà phê",
+        initialMsg: "Good morning! Welcome to Central Brew. What can I get started for you today?",
+        quickHints: ["Could I get a large latte?", "Do you have oat milk?", "Just an espresso to go."]
+      },
+      {
+        id: "sc_boss",
+        partner: "Anh Vương (Sếp)",
+        desc: "Trao đổi tiến độ & rủ ăn trưa",
+        initialMsg: "早啊！小李，手头那个客户方案进展得怎么样了？中午大家一起吃个便饭？",
+        quickHints: ["王哥早！方案已经差不多了。", "好啊哥，中午我请您！", "没问题哥，您看几点？"]
+      }
+    ];
+    let activeScenario = roleplayScenarios[0];
+    let chatDialogue = [];
+
+    /* ================================================================= */
+    /* STORAGE & LOCAL PERSISTENCE HELPERS                               */
+    /* ================================================================= */
+    function loadSavedState() {
+      try {
+        const saved = localStorage.getItem('reflex_coach_data');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.masteredVocabIds) window.masteredVocabIds = parsed.masteredVocabIds;
+          if (parsed.activeVocabDay) window.activeVocabDay = parsed.activeVocabDay;
+          if (parsed.streakDays) window.streakDays = parsed.streakDays;
+          if (parsed.lastActiveDate) window.lastActiveDate = parsed.lastActiveDate;
+          if (parsed.unlockedDays) window.unlockedDays = parsed.unlockedDays;
+        }
+      } catch(e) {
+        console.warn("Local storage read error", e);
+      }
+      checkAndHandleDailyProgression();
     }
 
-    // PHÁT ÂM
-    function playAudio(text, lang) {
-      if (!window.speechSynthesis) return;
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang;
-      u.rate = 0.95;
-      window.speechSynthesis.speak(u);
-    }
-
-    // 1. CHỨC NĂNG GỌI THOẠI 2 CHIỀU
-    function changeScenario() {
-      const scKey = document.getElementById('callScenarioSelect').value;
-      const sc = callScenarios[scKey];
-      document.getElementById('callerName').innerText = sc.name;
-      document.getElementById('callRoleDesc').innerText = sc.role;
-      document.getElementById('callAvatarIcon').innerText = sc.avatar;
-      
-      const quickBox = document.getElementById('callQuickReplies');
-      quickBox.innerHTML = '';
-      sc.quickReplies.forEach(qr => {
-        const btn = document.createElement('button');
-        btn.className = 'px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs text-left border border-slate-700';
-        btn.innerHTML = `<strong>${qr.text}</strong><br/><span class="text-[10px] text-slate-400">${qr.vn}</span>`;
-        btn.onclick = () => userSpeakReply(qr.text);
-        quickBox.appendChild(btn);
-      });
-
-      if (isCallActive) toggleCall();
-    }
-
-    function toggleCall() {
-      const scKey = document.getElementById('callScenarioSelect').value;
-      const sc = callScenarios[scKey];
-      const btn = document.getElementById('btnCallToggle');
-      const micBtn = document.getElementById('btnMic');
-      const status = document.getElementById('callStatus');
-      const ring = document.getElementById('callAvatarRing');
-      const chatLog = document.getElementById('callChatLog');
-
-      if (!isCallActive) {
-        isCallActive = true;
-        btn.className = 'px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-full font-medium text-sm flex items-center gap-2 shadow-lg transition-all';
-        btn.innerHTML = '<i class="fa-solid fa-phone-slash"></i> Kết thúc cuộc gọi';
-        micBtn.classList.remove('hidden');
-        status.innerText = 'Đang kết nối...';
-        ring.classList.add('pulse-ring');
-        
-        chatLog.innerHTML = `<div class="p-3 rounded-lg bg-indigo-950/80 border border-indigo-800/50 text-indigo-200 text-xs">
-          <strong>${sc.name}:</strong> ${sc.openMsg}
-        </div>`;
-        playAudio(sc.openMsg, sc.lang);
-        status.innerText = 'Đang trò chuyện trực tuyến';
-      } else {
-        isCallActive = false;
-        btn.className = 'px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full font-medium text-sm flex items-center gap-2 shadow-lg transition-all';
-        btn.innerHTML = '<i class="fa-solid fa-phone"></i> Bắt đầu cuộc gọi';
-        micBtn.classList.add('hidden');
-        status.innerText = 'Cuộc gọi đã kết thúc';
-        ring.classList.remove('pulse-ring');
+    function saveLearningState() {
+      try {
+        const payload = {
+          masteredVocabIds: window.masteredVocabIds,
+          activeVocabDay: window.activeVocabDay,
+          streakDays: window.streakDays,
+          lastActiveDate: window.lastActiveDate,
+          unlockedDays: window.unlockedDays,
+          lastUpdated: new Date().toISOString()
+        };
+        localStorage.setItem('reflex_coach_data', JSON.stringify(payload));
+        const icon = document.getElementById('cloud-sync-icon');
+        const text = document.getElementById('cloud-sync-text');
+        if (icon && text) {
+          icon.className = "fa-solid fa-cloud-arrow-up text-amber-500 animate-pulse";
+          text.innerText = "Đang lưu...";
+          setTimeout(() => {
+            icon.className = "fa-solid fa-cloud-check text-emerald-500";
+            text.innerText = "Đã lưu";
+          }, 400);
+        }
+      } catch(e) {
+        console.warn("Local storage write error", e);
       }
     }
 
-    function userSpeakReply(text) {
-      if (!isCallActive) return;
-      const scKey = document.getElementById('callScenarioSelect').value;
-      const sc = callScenarios[scKey];
-      const chatLog = document.getElementById('callChatLog');
+    function checkAndHandleDailyProgression() {
+      const today = new Date().toISOString().slice(0, 10);
+      const lastDate = window.lastActiveDate || today;
 
-      const userDiv = document.createElement('div');
-      userDiv.className = 'p-3 rounded-lg bg-blue-900/40 border border-blue-700/50 text-blue-200 text-xs text-right ml-6';
-      userDiv.innerHTML = `<strong>Bạn:</strong> ${text}`;
-      chatLog.appendChild(userDiv);
-      chatLog.scrollTop = chatLog.scrollHeight;
+      if (lastDate !== today) {
+        const d1 = new Date(lastDate);
+        const d2 = new Date(today);
+        const diffDays = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
 
-      setTimeout(() => {
-        if (!isCallActive) return;
-        const botReply = sc.botReplies[Math.floor(Math.random() * sc.botReplies.length)];
-        const botDiv = document.createElement('div');
-        botDiv.className = 'p-3 rounded-lg bg-indigo-950/80 border border-indigo-800/50 text-indigo-200 text-xs mr-6';
-        botDiv.innerHTML = `<strong>${sc.name}:</strong> ${botReply}`;
-        chatLog.appendChild(botDiv);
-        chatLog.scrollTop = chatLog.scrollHeight;
-        playAudio(botReply, sc.lang);
-      }, 1200);
+        if (diffDays === 1) {
+          window.streakDays = (window.streakDays || 1) + 1;
+        } else if (diffDays > 1) {
+          window.streakDays = 1;
+        }
+
+        const nextDayCandidate = Math.min((window.activeVocabDay || 1) + 1, dailyBilingualVocab.length);
+        if (!window.unlockedDays.includes(nextDayCandidate)) {
+          window.unlockedDays.push(nextDayCandidate);
+        }
+        window.activeVocabDay = nextDayCandidate;
+        window.lastActiveDate = today;
+
+        showToast(`Chào ngày mới! 10 từ vựng Ngày ${window.activeVocabDay} đã sẵn sàng. Chuỗi học: ${window.streakDays} ngày 🔥`, "success");
+        saveLearningState();
+      }
+
+      updateStreakDisplay();
     }
 
-    function triggerMicResponse() {
-      const scKey = document.getElementById('callScenarioSelect').value;
-      const sc = callScenarios[scKey];
-      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRec) {
-        alert("Trình duyệt không hỗ trợ Web Speech API. Bạn có thể bấm chọn nhanh các câu gợi ý phía dưới!");
+    function updateStreakDisplay() {
+      const streakText = document.getElementById('streak-counter-text');
+      const badge = document.getElementById('streak-badge-container');
+      if (streakText) streakText.innerText = `Chuỗi ${window.streakDays || 1} Ngày`;
+      if (badge) badge.classList.remove('hidden');
+    }
+
+    /* ================================================================= */
+    /* AUDIO PRONUNCIATION (SPEECH SYNTHESIS)                            */
+    /* ================================================================= */
+    function speakText(text, callback) {
+      if (!('speechSynthesis' in window)) {
+        showToast("Trình duyệt không hỗ trợ phát âm tự động.", "info");
+        if (callback) callback();
         return;
       }
-      const rec = new SpeechRec();
-      rec.lang = sc.lang;
-      rec.onstart = () => { document.getElementById('callStatus').innerText = 'Đang lắng nghe...'; };
-      rec.onresult = (e) => {
-        const transcript = e.results[0][0].transcript;
-        userSpeakReply(transcript);
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.95;
+      if (callback) {
+        utterance.onend = () => callback();
+        utterance.onerror = () => callback();
+      }
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function speakChinese(text, callback) {
+      if (!('speechSynthesis' in window)) {
+        showToast("Trình duyệt không hỗ trợ phát âm tự động.", "info");
+        if (callback) callback();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-CN';
+      utterance.rate = 0.9;
+      if (callback) {
+        utterance.onend = () => callback();
+        utterance.onerror = () => callback();
+      }
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function speakBilingualPair(en, zh) {
+      speakText(en, () => {
+        setTimeout(() => {
+          speakChinese(zh);
+        }, 300);
+      });
+    }
+
+    /* ================================================================= */
+    /* NAVIGATION & TAB SWITCHING LOGIC                                  */
+    /* ================================================================= */
+    function switchTab(tabId) {
+      const tabs = ['grammar', 'dualvocab', 'chinese', 'drills', 'roleplay', 'chunks'];
+      tabs.forEach(t => {
+        const viewEl = document.getElementById(`view-${t}`);
+        if (viewEl) viewEl.classList.add('hidden');
+        
+        const deskBtn = document.getElementById(`tab-btn-${t}`);
+        const mobBtn = document.getElementById(`mob-tab-${t}`);
+        if (deskBtn) deskBtn.className = "tab-btn px-3 py-1.5 rounded-xl transition text-slate-600 hover:text-slate-900";
+        if (mobBtn) mobBtn.className = "flex-1 py-2.5 px-3 text-center text-slate-600 whitespace-nowrap";
+      });
+
+      const activeView = document.getElementById(`view-${tabId}`);
+      if (activeView) activeView.classList.remove('hidden');
+
+      const activeDesk = document.getElementById(`tab-btn-${tabId}`);
+      const activeMob = document.getElementById(`mob-tab-${tabId}`);
+
+      if (activeDesk) {
+        if (tabId === 'chinese') {
+          activeDesk.className = "tab-btn px-3 py-1.5 rounded-xl transition bg-rose-600 text-white shadow-xs font-bold";
+        } else if (tabId === 'dualvocab') {
+          activeDesk.className = "tab-btn px-3 py-1.5 rounded-xl transition bg-amber-600 text-white shadow-xs font-bold";
+        } else {
+          activeDesk.className = "tab-btn px-3 py-1.5 rounded-xl transition bg-white text-indigo-600 shadow-xs font-bold";
+        }
+      }
+
+      if (activeMob) {
+        if (tabId === 'chinese') {
+          activeMob.className = "flex-1 py-2.5 px-3 text-center text-rose-600 font-bold whitespace-nowrap bg-rose-50";
+        } else if (tabId === 'dualvocab') {
+          activeMob.className = "flex-1 py-2.5 px-3 text-center text-amber-700 font-bold whitespace-nowrap bg-amber-50";
+        } else {
+          activeMob.className = "flex-1 py-2.5 px-3 text-center text-indigo-600 font-bold whitespace-nowrap bg-indigo-50/50";
+        }
+      }
+
+      if (tabId === 'grammar') renderGrammarContent();
+      else if (tabId === 'dualvocab') renderDualVocabContent();
+      else if (tabId === 'chinese') renderChineseContent();
+      else if (tabId === 'drills') renderCurrentDrill();
+      else if (tabId === 'roleplay') renderRoleplayUI();
+      else if (tabId === 'chunks') renderChunks();
+    }
+
+    /* ================================================================= */
+    /* TAB 1: GRAMMAR LOGIC & 15-MIN TIMER                               */
+    /* ================================================================= */
+    let grammarSeconds = 15 * 60;
+    let grammarTimerInterval = null;
+
+    function toggleGrammarTimer() {
+      const btn = document.getElementById('grammar-timer-btn');
+      const icon = document.getElementById('grammar-timer-icon');
+      const btnText = document.getElementById('grammar-timer-btn-text');
+
+      if (grammarTimerInterval) {
+        clearInterval(grammarTimerInterval);
+        grammarTimerInterval = null;
+        btn.className = "px-3 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold flex items-center gap-1.5 transition";
+        icon.className = "fa-solid fa-play text-[10px]";
+        btnText.innerText = "Tiếp tục";
+      } else {
+        grammarTimerInterval = setInterval(() => {
+          if (grammarSeconds > 0) {
+            grammarSeconds--;
+            updateGrammarTimerDisplay();
+          } else {
+            clearInterval(grammarTimerInterval);
+            grammarTimerInterval = null;
+            showToast("Chúc mừng! Bạn đã hoàn thành 15 phút ngữ pháp hôm nay! 🎉", "success");
+          }
+        }, 1000);
+        btn.className = "px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center gap-1.5 transition";
+        icon.className = "fa-solid fa-pause text-[10px]";
+        btnText.innerText = "Tạm dừng";
+      }
+    }
+
+    function resetGrammarTimer() {
+      if (grammarTimerInterval) {
+        clearInterval(grammarTimerInterval);
+        grammarTimerInterval = null;
+      }
+      grammarSeconds = 15 * 60;
+      updateGrammarTimerDisplay();
+      const btn = document.getElementById('grammar-timer-btn');
+      const icon = document.getElementById('grammar-timer-icon');
+      const btnText = document.getElementById('grammar-timer-btn-text');
+      btn.className = "px-3 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold flex items-center gap-1.5 transition";
+      icon.className = "fa-solid fa-play text-[10px]";
+      btnText.innerText = "Bắt đầu 15P";
+    }
+
+    function updateGrammarTimerDisplay() {
+      const m = Math.floor(grammarSeconds / 60);
+      const s = grammarSeconds % 60;
+      document.getElementById('grammar-timer-display').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function switchGrammarTrack(track) {
+      activeGrammarTrack = track;
+      const btnDaily = document.getElementById('track-btn-daily');
+      const btnAdv = document.getElementById('track-btn-advanced');
+      const trackDaily = document.getElementById('grammar-track-daily');
+      const trackAdv = document.getElementById('grammar-track-advanced');
+
+      if (track === 'daily') {
+        btnDaily.className = "px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs transition";
+        btnAdv.className = "px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition";
+        trackDaily.classList.remove('hidden');
+        trackAdv.classList.add('hidden');
+      } else {
+        btnAdv.className = "px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-xs transition";
+        btnDaily.className = "px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition";
+        trackAdv.classList.remove('hidden');
+        trackDaily.classList.add('hidden');
+      }
+      renderGrammarContent();
+    }
+
+    function switchGrammarMode(mode) {
+      activeGrammarMode = mode;
+      const btnLessons = document.getElementById('gmode-btn-lessons');
+      const btnQuiz = document.getElementById('gmode-btn-quiz');
+      const dailyLessons = document.getElementById('daily-lessons-container');
+      const dailyQuiz = document.getElementById('daily-quiz-container');
+      const advLessons = document.getElementById('advanced-lessons-container');
+      const advQuiz = document.getElementById('advanced-quiz-container');
+
+      if (mode === 'lessons') {
+        btnLessons.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-800 transition";
+        btnQuiz.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition";
+        dailyLessons.classList.remove('hidden');
+        dailyQuiz.classList.add('hidden');
+        advLessons.classList.remove('hidden');
+        advQuiz.classList.add('hidden');
+      } else {
+        btnQuiz.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-800 transition";
+        btnLessons.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition";
+        dailyLessons.classList.add('hidden');
+        dailyQuiz.classList.remove('hidden');
+        advLessons.classList.add('hidden');
+        advQuiz.classList.remove('hidden');
+      }
+      renderGrammarContent();
+    }
+
+    function renderGrammarContent() {
+      // Render Daily Lessons
+      const dailyCont = document.getElementById('daily-lessons-container');
+      dailyCont.innerHTML = dailyGrammarLessons.map(l => `
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700">Giao Tiếp Đời Thường</span>
+            <button onclick="speakText('${l.natural.replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs transition">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <h4 class="text-base font-extrabold text-slate-900">${l.title}</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">${l.concept}</p>
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs font-mono font-semibold text-slate-700">
+            ${l.structure}
+          </div>
+          <div class="space-y-1.5 pt-2 border-t border-slate-100 text-xs">
+            <div class="text-emerald-700 font-medium flex items-center gap-1.5">
+              <i class="fa-solid fa-check text-emerald-500"></i>
+              <span>Nên dùng: "${l.natural}"</span>
+            </div>
+            <div class="text-rose-600 font-medium flex items-center gap-1.5">
+              <i class="fa-solid fa-xmark text-rose-500"></i>
+              <span>Tránh: "${l.unnatural}"</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Render Advanced Lessons
+      const advCont = document.getElementById('advanced-lessons-container');
+      advCont.innerHTML = advancedGrammarLessons.map(l => `
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md bg-purple-50 text-purple-700">Nâng Cao (B2-C1)</span>
+            <button onclick="speakText('${l.natural.replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-600 flex items-center justify-center text-xs transition">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <h4 class="text-base font-extrabold text-slate-900">${l.title}</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">${l.concept}</p>
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs font-mono font-semibold text-slate-700">
+            ${l.structure}
+          </div>
+          <div class="space-y-1.5 pt-2 border-t border-slate-100 text-xs">
+            <div class="text-emerald-700 font-medium flex items-center gap-1.5">
+              <i class="fa-solid fa-check text-emerald-500"></i>
+              <span>Chuẩn xác: "${l.natural}"</span>
+            </div>
+            <div class="text-rose-600 font-medium flex items-center gap-1.5">
+              <i class="fa-solid fa-xmark text-rose-500"></i>
+              <span>Lỗi hay gặp: "${l.unnatural}"</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Render Quizzes
+      renderQuizzes();
+    }
+
+    function renderQuizzes() {
+      const dailyQuizCont = document.getElementById('daily-quiz-content');
+      dailyQuizCont.innerHTML = dailyQuizQuestions.map((q, qIdx) => `
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+          <p class="text-xs font-bold text-slate-800">Câu ${qIdx + 1}: ${q.q}</p>
+          <div class="space-y-2">
+            ${q.options.map((opt, optIdx) => `
+              <button onclick="selectQuizOption('daily', ${qIdx}, ${optIdx})" id="dq-opt-${qIdx}-${optIdx}" class="w-full text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-medium text-slate-700 transition">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="dq-feedback-${qIdx}" class="hidden p-3 rounded-xl text-xs font-medium"></div>
+        </div>
+      `).join('');
+
+      const advQuizCont = document.getElementById('adv-quiz-content');
+      advQuizCont.innerHTML = advQuizQuestions.map((q, qIdx) => `
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+          <p class="text-xs font-bold text-slate-800">Câu ${qIdx + 1}: ${q.q}</p>
+          <div class="space-y-2">
+            ${q.options.map((opt, optIdx) => `
+              <button onclick="selectQuizOption('adv', ${qIdx}, ${optIdx})" id="aq-opt-${qIdx}-${optIdx}" class="w-full text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-medium text-slate-700 transition">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="aq-feedback-${qIdx}" class="hidden p-3 rounded-xl text-xs font-medium"></div>
+        </div>
+      `).join('');
+    }
+
+    function selectQuizOption(type, qIdx, selectedIdx) {
+      const questions = type === 'daily' ? dailyQuizQuestions : advQuizQuestions;
+      const q = questions[qIdx];
+      const prefix = type === 'daily' ? 'dq' : 'aq';
+      const isCorrect = selectedIdx === q.correct;
+
+      q.options.forEach((_, idx) => {
+        const btn = document.getElementById(`${prefix}-opt-${qIdx}-${idx}`);
+        btn.disabled = true;
+        if (idx === q.correct) {
+          btn.className = "w-full text-left p-2.5 rounded-xl border border-emerald-500 bg-emerald-50 text-emerald-900 font-bold text-xs";
+        } else if (idx === selectedIdx) {
+          btn.className = "w-full text-left p-2.5 rounded-xl border border-rose-400 bg-rose-50 text-rose-800 text-xs";
+        }
+      });
+
+      const feedback = document.getElementById(`${prefix}-feedback-${qIdx}`);
+      feedback.classList.remove('hidden');
+      if (isCorrect) {
+        feedback.className = "p-3 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-950 border border-emerald-200";
+        feedback.innerHTML = `<strong>Chính xác!</strong> ${q.exp}`;
+      } else {
+        feedback.className = "p-3 rounded-xl text-xs font-medium bg-rose-100 text-rose-950 border border-rose-200";
+        feedback.innerHTML = `<strong>Chưa đúng:</strong> ${q.exp}`;
+      }
+    }
+
+    /* ================================================================= */
+    /* TAB 2: DUAL BILINGUAL VOCAB (SONG NGỮ ANH ⇋ TRUNG) LOGIC          */
+    /* ================================================================= */
+    let currentVocabTypingIdx = 0;
+    let vocabTypingSubMode = 'pinyin'; // 'pinyin' | 'en' | 'zh'
+
+    function switchDualVocabMode(mode) {
+      window.activeDualVocabMode = mode;
+      const btnCards = document.getElementById('dvm-btn-cards');
+      const btnTyping = document.getElementById('dvm-btn-typing');
+      const btnReview = document.getElementById('dvm-btn-review');
+      const btnMatch = document.getElementById('dvm-btn-match');
+
+      const cardsView = document.getElementById('dualvocab-cards-view');
+      const typingView = document.getElementById('dualvocab-typing-view');
+      const reviewView = document.getElementById('dualvocab-review-view');
+      const matchView = document.getElementById('dualvocab-match-view');
+
+      [btnCards, btnTyping, btnReview, btnMatch].forEach(btn => {
+        if (btn) btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition";
+      });
+
+      cardsView.classList.add('hidden');
+      typingView.classList.add('hidden');
+      reviewView.classList.add('hidden');
+      matchView.classList.add('hidden');
+
+      if (mode === 'cards') {
+        btnCards.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 transition";
+        cardsView.classList.remove('hidden');
+        renderDualVocabContent();
+      } else if (mode === 'typing') {
+        btnTyping.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-900 border border-blue-300 transition";
+        typingView.classList.remove('hidden');
+        initVocabTyping();
+      } else if (mode === 'review') {
+        btnReview.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-300 transition";
+        reviewView.classList.remove('hidden');
+        renderMasteredReviewList();
+      } else {
+        btnMatch.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 transition";
+        matchView.classList.remove('hidden');
+        renderVocabMatchQuiz();
+      }
+    }
+
+    // MODULE LUYỆN VIẾT GÕ TỪ & PINYIN (KHÔNG LỘ ĐÁP ÁN)
+    function initVocabTyping() {
+      renderVocabTypingCard();
+      const input = document.getElementById('vtype-input');
+      input.onkeydown = function(e) {
+        if (e.key === 'Enter') checkVocabTyping();
       };
-      rec.onerror = () => { document.getElementById('callStatus').innerText = 'Đang trò chuyện'; };
-      rec.onend = () => { document.getElementById('callStatus').innerText = 'Đang trò chuyện'; };
-      rec.start();
     }
 
-    // 2. CHỨC NĂNG LUYỆN GÕ PHÍM (KHÔNG LỘ ĐÁP ÁN)
-    function initTyping() {
-      renderTypingCard();
-      const input = document.getElementById('typingInput');
-      input.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') checkTypingAnswer();
-      });
-    }
-
-    function setTypingMode(mode) {
-      typingMode = mode;
+    function setVocabTypingSubMode(mode) {
+      vocabTypingSubMode = mode;
       ['pinyin', 'en', 'zh'].forEach(m => {
-        const btn = document.getElementById(`btn-mode-${m}`);
-        btn.className = (m === mode) ? 'px-4 py-2 rounded-lg text-sm bg-blue-600 text-white font-medium' : 'px-4 py-2 rounded-lg text-sm bg-white border hover:bg-slate-100 font-medium';
+        const b = document.getElementById(`btn-vtype-${m}`);
+        b.className = m === mode 
+          ? "px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white transition"
+          : "px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
       });
-      currentTypingIndex = 0;
-      renderTypingCard();
+      currentVocabTypingIdx = 0;
+      renderVocabTypingCard();
     }
 
-    function removePinyinTones(str) {
+    function cleanPinyinTones(str) {
       return str.normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
-        .replace(/ü/g, 'v')
-        .replace(/Ü/g, 'v')
-        .replace(/[^a-zA-Z0-9\s]/g, '')
+        .replace(/ü/g, 'v').replace(/Ü/g, 'v')
+        .replace(/[^a-zA-Z0-9]/g, '')
         .toLowerCase();
     }
 
-    function renderTypingCard() {
-      const words = vocabData[0].words;
-      const cur = words[currentTypingIndex];
-      document.getElementById('typingProgress').innerText = `Câu ${currentTypingIndex + 1}/${words.length}`;
-      
-      const promptMain = document.getElementById('typingPromptMain');
-      const promptHint = document.getElementById('typingPromptHint');
-      const subHint = document.getElementById('typingSubHint');
-      const modeLabel = document.getElementById('typingModeLabel');
-      const feedback = document.getElementById('typingFeedback');
-      const input = document.getElementById('typingInput');
+    function renderVocabTypingCard() {
+      const currentPack = dailyBilingualVocab.find(d => d.day === window.activeVocabDay) || dailyBilingualVocab[0];
+      const cur = currentPack.words[currentVocabTypingIdx];
+      document.getElementById('vtype-progress-counter').innerText = `Từ ${currentVocabTypingIdx + 1} / ${currentPack.words.length}`;
+
+      const promptMain = document.getElementById('vtype-main-prompt');
+      const hintTop = document.getElementById('vtype-hint-top');
+      const subPrompt = document.getElementById('vtype-sub-prompt');
+      const input = document.getElementById('vtype-input');
+      const feedback = document.getElementById('vtype-feedback');
 
       feedback.className = 'hidden';
       input.value = '';
       input.focus();
 
-      if (typingMode === 'pinyin') {
-        modeLabel.innerText = 'CHẾ ĐỘ: GÕ PINYIN';
+      if (vocabTypingSubMode === 'pinyin') {
         promptMain.innerText = cur.zh;
-        promptHint.innerText = `Nghĩa tiếng Việt: ${cur.vn}`;
-        subHint.innerText = 'Hãy gõ Pinyin của chữ Hán trên (chấp nhận cả có dấu hoặc không dấu)';
+        hintTop.innerText = `Nghĩa: ${cur.vn}`;
+        subPrompt.innerText = 'Hãy tự nhớ và gõ phiên âm Pinyin của chữ Hán trên (có dấu hoặc không dấu đều được)';
         input.placeholder = 'Gõ Pinyin vào đây...';
-      } else if (typingMode === 'en') {
-        modeLabel.innerText = 'CHẾ ĐỘ: GÕ TỪ TIẾNG ANH';
+      } else if (vocabTypingSubMode === 'en') {
         promptMain.innerText = cur.zh;
-        promptHint.innerText = `Nghĩa: ${cur.vn} • Phiên âm IPA: ${cur.ipa}`;
-        subHint.innerText = 'Hãy nhớ lại và gõ chính xác từ tiếng Anh tương ứng';
+        hintTop.innerText = `Nghĩa: ${cur.vn} • Phiên âm IPA: ${cur.phonetic}`;
+        subPrompt.innerText = 'Hãy nhớ lại và gõ chính xác từ tiếng Anh tương ứng';
         input.placeholder = 'Gõ từ tiếng Anh vào đây...';
-      } else if (typingMode === 'zh') {
-        modeLabel.innerText = 'CHẾ ĐỘ: GÕ CHỮ HÁN';
+      } else {
         promptMain.innerText = cur.en;
-        promptHint.innerText = `Nghĩa: ${cur.vn}`;
-        subHint.innerText = 'Sử dụng bộ gõ tiếng Trung để nhập chữ Hán của từ trên';
+        hintTop.innerText = `Nghĩa: ${cur.vn}`;
+        subPrompt.innerText = 'Sử dụng bộ gõ tiếng Trung để nhập chữ Hán của từ trên';
         input.placeholder = 'Gõ chữ Hán vào đây...';
       }
     }
 
-    function checkTypingAnswer() {
-      const words = vocabData[0].words;
-      const cur = words[currentTypingIndex];
-      const input = document.getElementById('typingInput').value.trim();
-      const feedback = document.getElementById('typingFeedback');
+    function checkVocabTyping() {
+      const currentPack = dailyBilingualVocab.find(d => d.day === window.activeVocabDay) || dailyBilingualVocab[0];
+      const cur = currentPack.words[currentVocabTypingIdx];
+      const input = document.getElementById('vtype-input').value.trim();
+      const feedback = document.getElementById('vtype-feedback');
       feedback.classList.remove('hidden');
 
       if (!input) {
-        feedback.className = 'p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-xs';
+        feedback.className = 'p-3 rounded-2xl text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200';
         feedback.innerText = 'Vui lòng nhập câu trả lời trước khi kiểm tra!';
         return;
       }
 
       let isCorrect = false;
-      if (typingMode === 'pinyin') {
-        const userClean = removePinyinTones(input).replace(/\s+/g, '');
-        const targetClean = removePinyinTones(cur.pinyin).replace(/\s+/g, '');
-        const targetCleanAlt = cur.pinyinClean.replace(/\s+/g, '');
-        if (userClean === targetClean || userClean === targetCleanAlt) isCorrect = true;
-      } else if (typingMode === 'en') {
+      if (vocabTypingSubMode === 'pinyin') {
+        const uClean = cleanPinyinTones(input);
+        const targetClean = cleanPinyinTones(cur.pinyin);
+        if (uClean === targetClean) isCorrect = true;
+      } else if (vocabTypingSubMode === 'en') {
         if (input.toLowerCase() === cur.en.toLowerCase()) isCorrect = true;
-      } else if (typingMode === 'zh') {
+      } else {
         if (input === cur.zh) isCorrect = true;
       }
 
       if (isCorrect) {
-        feedback.className = 'p-4 bg-emerald-50 border border-emerald-300 rounded-xl text-emerald-900 text-sm';
-        feedback.innerHTML = `<strong>Chính xác!</strong> ${cur.en} = ${cur.zh} (${cur.pinyin}): ${cur.vn}`;
-        playAudio(typingMode === 'en' ? cur.en : cur.zh, typingMode === 'en' ? 'en-US' : 'zh-CN');
+        feedback.className = 'p-4 rounded-2xl text-xs font-semibold bg-emerald-50 text-emerald-950 border border-emerald-300';
+        feedback.innerHTML = `<strong>Chính xác tuyệt vời!</strong> ${cur.en} = ${cur.zh} (${cur.pinyin}): ${cur.vn}`;
+        if (vocabTypingSubMode === 'en') speakText(cur.en);
+        else speakChinese(cur.zh);
       } else {
-        feedback.className = 'p-4 bg-rose-50 border border-rose-300 rounded-xl text-rose-900 text-sm';
-        let rightAns = typingMode === 'pinyin' ? `${cur.pinyin} (hoặc: ${cur.pinyinClean})` : (typingMode === 'en' ? cur.en : cur.zh);
-        feedback.innerHTML = `Chưa chính xác! Đáp án đúng: <strong class="font-mono text-slate-900">${rightAns}</strong>`;
+        feedback.className = 'p-4 rounded-2xl text-xs font-semibold bg-rose-50 text-rose-950 border border-rose-300';
+        let rightAns = vocabTypingSubMode === 'pinyin' ? cur.pinyin : (vocabTypingSubMode === 'en' ? cur.en : cur.zh);
+        feedback.innerHTML = `Chưa chính xác rồi! Đáp án đúng là: <strong class="font-mono text-slate-900">${rightAns}</strong>`;
       }
     }
 
-    function skipTypingQuestion() {
-      const words = vocabData[0].words;
-      const cur = words[currentTypingIndex];
-      const feedback = document.getElementById('typingFeedback');
+    function skipVocabTyping() {
+      const currentPack = dailyBilingualVocab.find(d => d.day === window.activeVocabDay) || dailyBilingualVocab[0];
+      const cur = currentPack.words[currentVocabTypingIdx];
+      const feedback = document.getElementById('vtype-feedback');
       feedback.classList.remove('hidden');
-      feedback.className = 'p-4 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-sm';
-      feedback.innerHTML = `Đáp án đúng: <strong>${cur.en}</strong> | <strong>${cur.zh}</strong> (${cur.pinyin}) - ${cur.vn}`;
+      feedback.className = 'p-4 rounded-2xl text-xs font-semibold bg-amber-50 text-amber-950 border border-amber-200';
+      feedback.innerHTML = `Đáp án: <strong>${cur.en}</strong> | <strong>${cur.zh}</strong> (${cur.pinyin}) - ${cur.vn}`;
     }
 
-    function nextTypingQuestion() {
-      const words = vocabData[0].words;
-      currentTypingIndex = (currentTypingIndex + 1) % words.length;
-      renderTypingCard();
+    function nextVocabTyping() {
+      const currentPack = dailyBilingualVocab.find(d => d.day === window.activeVocabDay) || dailyBilingualVocab[0];
+      currentVocabTypingIdx = (currentVocabTypingIdx + 1) % currentPack.words.length;
+      renderVocabTypingCard();
     }
 
-    function prevTypingQuestion() {
-      const words = vocabData[0].words;
-      currentTypingIndex = (currentTypingIndex - 1 + words.length) % words.length;
-      renderTypingCard();
+    function prevVocabTyping() {
+      const currentPack = dailyBilingualVocab.find(d => d.day === window.activeVocabDay) || dailyBilingualVocab[0];
+      currentVocabTypingIdx = (currentVocabTypingIdx - 1 + currentPack.words.length) % currentPack.words.length;
+      renderVocabTypingCard();
     }
 
-    function playCurrentAudio() {
-      const cur = vocabData[0].words[currentTypingIndex];
-      playAudio(typingMode === 'en' ? cur.en : cur.zh, typingMode === 'en' ? 'en-US' : 'zh-CN');
+    function playVocabTypingAudio() {
+      const currentPack = dailyBilingualVocab.find(d => d.day === window.activeVocabDay) || dailyBilingualVocab[0];
+      const cur = currentPack.words[currentVocabTypingIdx];
+      if (vocabTypingSubMode === 'en') speakText(cur.en);
+      else speakChinese(cur.zh);
     }
 
-    // 3. CHỨC NĂNG 10 TỪ SONG NGỮ & QUIZ GHÉP ĐÔI
-    function renderVocab() {
-      const data = vocabData[currentDayIndex];
-      document.getElementById('vocabDayTitle').innerText = `Gói Từ Vựng Ngày ${data.day}: ${data.title}`;
-      const list = document.getElementById('vocabList');
-      list.innerHTML = '';
+    function selectVocabDay(dayNum) {
+      window.activeVocabDay = dayNum;
+      renderDualVocabContent();
+    }
 
-      data.words.forEach(w => {
-        const isM = mastered.includes(w.id);
-        const card = document.createElement('div');
-        card.className = `p-4 rounded-xl border transition-all ${isM ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200 shadow-sm'}`;
-        card.innerHTML = `
-          <div class="flex justify-between items-start mb-2">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-base font-bold text-blue-700">${w.en}</span>
-                <span class="text-xs text-slate-500">${w.ipa}</span>
-                <button onclick="playAudio('${w.en}', 'en-US')" class="text-blue-500 hover:text-blue-700 text-xs"><i class="fa-solid fa-volume-high"></i></button>
-              </div>
-              <div class="flex items-center gap-2 mt-0.5">
-                <span class="text-base font-bold text-red-600">${w.zh}</span>
-                <span class="text-xs text-slate-500">${w.pinyin}</span>
-                <button onclick="playAudio('${w.zh}', 'zh-CN')" class="text-red-500 hover:text-red-700 text-xs"><i class="fa-solid fa-volume-high"></i></button>
-              </div>
-            </div>
-            <button onclick="toggleMaster('${w.id}')" class="px-2.5 py-1 text-xs font-medium rounded-full ${isM ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 border'}">
-              ${isM ? '✓ Đã thuộc' : '+ Đánh dấu'}
-            </button>
-          </div>
-          <div class="text-xs font-medium text-slate-800 mb-2">Nghĩa: ${w.vn}</div>
-          <div class="text-xs bg-slate-50 p-2 rounded border space-y-1 text-slate-600">
-            <div>• EN: ${w.enEx}</div>
-            <div>• ZH: ${w.zhEx}</div>
-          </div>
+    function unlockNextDayManually() {
+      const nextDay = (window.activeVocabDay || 1) + 1;
+      if (nextDay <= dailyBilingualVocab.length) {
+        if (!window.unlockedDays.includes(nextDay)) {
+          window.unlockedDays.push(nextDay);
+        }
+        window.activeVocabDay = nextDay;
+        renderDualVocabContent();
+        saveLearningState();
+        showToast(`Đã mở khóa 10 từ mới của Ngày ${nextDay}!`, "success");
+      } else {
+        showToast("Bạn đã mở khóa toàn bộ chương trình!", "info");
+      }
+    }
+
+    function toggleWordMastered(wordId) {
+      window.masteredVocabIds[wordId] = !window.masteredVocabIds[wordId];
+      renderDualVocabContent();
+      saveLearningState();
+      const isMastered = window.masteredVocabIds[wordId];
+      showToast(isMastered ? "Đã lưu vào kho từ thuộc!" : "Đã chuyển lại vào danh sách cần ôn tập.", "success");
+    }
+
+    function renderDualVocabContent() {
+      const dayPillsContainer = document.getElementById('dualvocab-day-pills');
+      const currentUnlocked = window.unlockedDays || [1];
+
+      dayPillsContainer.innerHTML = dailyBilingualVocab.map(d => {
+        const isUnlocked = currentUnlocked.includes(d.day);
+        const isActive = d.day === window.activeVocabDay;
+
+        return `
+          <button onclick="${isUnlocked ? `selectVocabDay(${d.day})` : `showToast('Gói này sẽ tự mở vào ngày mai hoặc bấm Mở Ngày Kế Tiếp', 'info')`}" 
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 ${
+              isActive 
+                ? 'bg-amber-600 text-white shadow-xs' 
+                : isUnlocked 
+                  ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' 
+                  : 'bg-slate-100/60 text-slate-400 cursor-not-allowed opacity-60'
+            }">
+            ${!isUnlocked ? '<i class="fa-solid fa-lock text-[10px]"></i>' : ''}
+            <span>Ngày ${d.day}: ${d.title.split(',')[0]}</span>
+          </button>
         `;
-        list.appendChild(card);
+      }).join('') + `
+        <button onclick="unlockNextDayManually()" title="Học trước ngày mai" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 whitespace-nowrap transition flex items-center gap-1">
+          <i class="fa-solid fa-plus text-[10px]"></i> Mở Ngày Kế Tiếp
+        </button>
+      `;
+
+      const currentPack = dailyBilingualVocab.find(d => d.day === window.activeVocabDay) || dailyBilingualVocab[0];
+      const totalWords = currentPack.words.length;
+      let masteredCountInPack = 0;
+      let totalMasteredAll = 0;
+
+      dailyBilingualVocab.forEach(p => {
+        p.words.forEach(w => {
+          if (window.masteredVocabIds[w.id]) {
+            totalMasteredAll++;
+            if (p.day === window.activeVocabDay) masteredCountInPack++;
+          }
+        });
       });
 
-      renderVocabQuiz();
+      document.getElementById('dualvocab-progress-label').innerText = `${masteredCountInPack} / ${totalWords} từ đã thuộc`;
+      document.getElementById('total-mastered-counter').innerText = `Tổng tích lũy: ${totalMasteredAll} từ đã thuộc`;
+      document.getElementById('review-count-badge').innerText = totalMasteredAll;
+
+      const pct = (masteredCountInPack / totalWords) * 100;
+      document.getElementById('dualvocab-progress-bar').style.width = `${pct}%`;
+
+      const cardsContainer = document.getElementById('dualvocab-cards-view');
+      cardsContainer.innerHTML = currentPack.words.map((w, idx) => {
+        const isMastered = !!window.masteredVocabIds[w.id];
+        return `
+          <div class="bg-white rounded-3xl border ${isMastered ? 'border-emerald-300 bg-emerald-50/10' : 'border-slate-200'} p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide ${isMastered ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-50 text-amber-800'}">
+                  Ngày ${currentPack.day} • Từ #${idx + 1} • ${isMastered ? 'Đã thuộc ✓' : 'Đang học'}
+                </span>
+                <button onclick="toggleWordMastered('${w.id}')" title="Đánh dấu đã ghi nhớ" class="w-8 h-8 rounded-xl border ${isMastered ? 'bg-emerald-500 text-white border-emerald-500' : 'border-slate-200 text-slate-300 hover:text-emerald-600 hover:border-emerald-400'} flex items-center justify-center text-xs transition">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+              </div>
+
+              <div class="pb-1 border-b border-slate-100">
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Ý nghĩa chung:</span>
+                <p class="text-base font-extrabold text-slate-900">${w.vn}</p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <!-- English Box -->
+                <div class="p-3.5 rounded-2xl bg-indigo-50/50 border border-indigo-100 space-y-1.5 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-extrabold uppercase text-indigo-500">English</span>
+                      <button onclick="speakText('${w.en.replace(/'/g, "\\'")}')" title="Nghe tiếng Anh" class="w-7 h-7 rounded-lg text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition">
+                        <i class="fa-solid fa-volume-high text-xs"></i>
+                      </button>
+                    </div>
+                    <h5 class="text-lg font-black text-indigo-950">${w.en}</h5>
+                    <p class="text-[11px] font-mono text-indigo-600 font-semibold">${w.phonetic}</p>
+                  </div>
+                  <div class="pt-2 border-t border-indigo-100/80 text-[11px] text-slate-600">
+                    <p class="italic">"${w.enEx}"</p>
+                  </div>
+                </div>
+
+                <!-- Chinese Box -->
+                <div class="p-3.5 rounded-2xl bg-rose-50/50 border border-rose-100 space-y-1.5 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-extrabold uppercase text-rose-500">中文 (Chinese)</span>
+                      <button onclick="speakChinese('${w.zh.replace(/'/g, "\\'")}')" title="Nghe tiếng Trung" class="w-7 h-7 rounded-lg text-rose-600 hover:bg-rose-100 flex items-center justify-center transition">
+                        <i class="fa-solid fa-volume-high text-xs"></i>
+                      </button>
+                    </div>
+                    <h5 class="text-xl font-black text-slate-900 tracking-wide">${w.zh}</h5>
+                    <p class="text-[11px] text-rose-600 font-bold">${w.pinyin}</p>
+                  </div>
+                  <div class="pt-2 border-t border-rose-100/80 text-[11px] text-slate-600">
+                    <p class="italic">"${w.zhEx}"</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+              <span class="italic">Tự động lưu tiến độ</span>
+              <button onclick="speakBilingualPair('${w.en.replace(/'/g, "\\'")}', '${w.zh.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-play text-[10px] text-amber-600"></i> Nghe cả 2 thứ tiếng
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function toggleMaster(id) {
-      if (mastered.includes(id)) {
-        mastered = mastered.filter(x => x !== id);
-      } else {
-        mastered.push(id);
+    function renderMasteredReviewList() {
+      const container = document.getElementById('dualvocab-review-grid');
+      const allWords = [];
+      dailyBilingualVocab.forEach(p => p.words.forEach(w => {
+        if (window.masteredVocabIds[w.id]) allWords.push(w);
+      }));
+
+      if (allWords.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-400">
+            <i class="fa-regular fa-folder-open text-4xl mb-3 block text-slate-300"></i>
+            <p class="text-sm font-semibold">Chưa có từ nào được đánh dấu là "Đã thuộc".</p>
+            <p class="text-xs text-slate-400 mt-1">Hãy bấm dấu tích ✓ trên các thẻ từ vựng để lưu vào kho ghi nhớ!</p>
+          </div>
+        `;
+        return;
       }
-      localStorage.setItem('masteredVocab', JSON.stringify(mastered));
-      renderVocab();
-      document.getElementById('masteredCount').innerText = mastered.length;
+
+      container.innerHTML = allWords.map(w => `
+        <div class="bg-white rounded-2xl border border-emerald-200 p-4 shadow-xs flex items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-indigo-900 text-sm">${w.en}</span>
+              <span class="text-xs text-slate-400">•</span>
+              <span class="font-bold text-rose-900 text-sm">${w.zh}</span>
+              <span class="text-[11px] text-rose-600 font-semibold">(${w.pinyin})</span>
+            </div>
+            <p class="text-xs text-slate-600">${w.vn}</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="speakBilingualPair('${w.en.replace(/'/g, "\\'")}', '${w.zh.replace(/'/g, "\\'")}')" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+            <button onclick="toggleWordMastered('${w.id}')" title="Bỏ khỏi danh sách đã thuộc" class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs transition">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
     }
 
-    function nextDay() {
-      if (currentDayIndex < vocabData.length - 1) {
-        currentDayIndex++;
-        renderVocab();
+    function exportWordList() {
+      const allWords = [];
+      dailyBilingualVocab.forEach(p => p.words.forEach(w => {
+        if (window.masteredVocabIds[w.id]) {
+          allWords.push(`${w.en} (${w.phonetic}) - ${w.zh} (${w.pinyin}): ${w.vn}`);
+        }
+      }));
+
+      if (allWords.length === 0) {
+        showToast("Chưa có từ nào để xuất danh sách!", "info");
+        return;
       }
+
+      const text = allWords.join('\n');
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      showToast(`Đã sao chép ${allWords.length} từ đã thuộc vào clipboard!`, "success");
     }
 
-    function prevDay() {
-      if (currentDayIndex > 0) {
-        currentDayIndex--;
-        renderVocab();
-      }
-    }
+    function renderVocabMatchQuiz() {
+      const container = document.getElementById('dualvocab-match-container');
+      const currentPack = dailyBilingualVocab.find(d => d.day === window.activeVocabDay) || dailyBilingualVocab[0];
+      const targetWord = currentPack.words[Math.floor(Math.random() * currentPack.words.length)];
 
-    function renderVocabQuiz() {
-      const container = document.getElementById('vocabQuizContainer');
-      const curWords = vocabData[currentDayIndex].words;
-      const target = curWords[Math.floor(Math.random() * curWords.length)];
-      
-      let options = [target];
-      while (options.length < 4 && options.length < curWords.length) {
-        const r = curWords[Math.floor(Math.random() * curWords.length)];
-        if (!options.find(o => o.id === r.id)) options.push(r);
-      }
-      options.sort(() => Math.random() - 0.5);
+      const distractors = currentPack.words.filter(w => w.id !== targetWord.id);
+      distractors.sort(() => 0.5 - Math.random());
+      const choices = [targetWord, distractors[0], distractors[1], distractors[2]].sort(() => 0.5 - Math.random());
 
       container.innerHTML = `
-        <p class="text-sm">Từ tiếng Anh <strong class="text-blue-600">"${target.en}"</strong> (${target.vn}) tương ứng với từ tiếng Trung nào?</p>
-        <div class="grid grid-cols-2 gap-2 pt-2">
-          ${options.map(opt => `
-            <button onclick="checkVocabQuiz('${opt.id}', '${target.id}', this)" class="p-2.5 text-left border rounded-lg text-sm hover:bg-slate-50 font-medium">
-              ${opt.zh} <span class="text-xs text-slate-500">(${opt.pinyin})</span>
-            </button>
-          `).join('')}
+        <div class="p-5 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-4">
+          <div class="text-center space-y-1">
+            <span class="text-[11px] font-bold uppercase text-amber-700 tracking-wider">Từ tiếng Anh cần ghép nghĩa:</span>
+            <h4 class="text-2xl font-black text-indigo-950">${targetWord.en}</h4>
+            <p class="text-xs font-mono text-indigo-600">${targetWord.phonetic}</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            ${choices.map(c => `
+              <button onclick="checkMatchChoice('${c.id}', '${targetWord.id}', '${targetWord.zh}', '${targetWord.vn}')" id="match-btn-${c.id}" class="p-3.5 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition flex items-center justify-between">
+                <div>
+                  <div class="text-base font-extrabold text-slate-900">${c.zh}</div>
+                  <div class="text-xs text-rose-600 font-semibold">${c.pinyin}</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
+              </button>
+            `).join('')}
+          </div>
+
+          <div id="match-result-feedback" class="hidden p-3 rounded-xl text-xs font-medium text-center"></div>
         </div>
       `;
     }
 
-    function checkVocabQuiz(chosenId, targetId, btn) {
+    function checkMatchChoice(chosenId, targetId, zh, vn) {
+      const feedback = document.getElementById('match-result-feedback');
+      feedback.classList.remove('hidden');
+
       if (chosenId === targetId) {
-        btn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
-        setTimeout(() => renderVocabQuiz(), 1000);
+        document.getElementById(`match-btn-${chosenId}`).className = "p-3.5 rounded-2xl border border-emerald-500 bg-emerald-50 text-emerald-950 text-left font-bold transition flex items-center justify-between";
+        feedback.className = "p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-200";
+        feedback.innerHTML = `Chính xác! "${zh}" mang nghĩa: ${vn}`;
+        speakChinese(zh);
       } else {
-        btn.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-900');
+        document.getElementById(`match-btn-${chosenId}`).className = "p-3.5 rounded-2xl border border-rose-400 bg-rose-50 text-rose-900 text-left transition flex items-center justify-between";
+        feedback.className = "p-3 rounded-xl text-xs font-bold bg-rose-100 text-rose-900 border border-rose-200";
+        feedback.innerHTML = `Chưa đúng rồi! Hãy thử lại một phương án khác nhé.`;
       }
     }
 
-    // 4. CHỨC NĂNG BÀI TẬP NGỮ PHÁP ĐA DẠNG
-    function filterGrammar(type) {
-      document.querySelectorAll('.g-filter').forEach(b => {
-        b.className = b.dataset.type === type ? 'px-3 py-1.5 rounded-lg text-sm bg-slate-800 text-white font-medium g-filter' : 'px-3 py-1.5 rounded-lg text-sm bg-white border hover:bg-slate-100 g-filter';
+    /* ================================================================= */
+    /* TAB 3: CHINESE WORKPLACE & BROTHER WANG LOGIC                     */
+    /* ================================================================= */
+    function filterChineseCategory(cat) {
+      activeChineseCat = cat;
+      const cats = ['all', 'brother', 'teambuilding', 'sports', 'work'];
+      cats.forEach(c => {
+        const btn = document.getElementById(`cncat-${c}`);
+        if (btn) {
+          if (c === cat) {
+            btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-xs whitespace-nowrap transition";
+          } else {
+            btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 whitespace-nowrap transition";
+          }
+        }
       });
-      filteredGrammar = type === 'all' ? [...grammarExercises] : grammarExercises.filter(e => e.type === type);
-      currentGrammarIdx = 0;
-      renderGrammar();
+      renderChineseContent();
     }
 
-    function renderGrammar() {
-      if (!filteredGrammar.length) return;
-      const ex = filteredGrammar[currentGrammarIdx];
-      document.getElementById('exerciseTypeBadge').innerText = ex.typeName;
-      document.getElementById('exerciseCounter').innerText = `Câu ${currentGrammarIdx + 1}/${filteredGrammar.length}`;
-      
-      const body = document.getElementById('grammarExerciseBody');
-      const fb = document.getElementById('grammarFeedback');
-      fb.className = 'hidden';
-      selectedScramble = [];
+    function renderChineseContent() {
+      const container = document.getElementById('chinese-phrases-grid');
+      const filtered = activeChineseCat === 'all' ? chinesePhrases : chinesePhrases.filter(p => p.cat === activeChineseCat);
 
-      if (ex.type === 'scramble') {
-        const pool = [...ex.words].sort(() => Math.random() - 0.5);
-        body.innerHTML = `
-          <p class="font-medium text-slate-900">${ex.prompt}</p>
-          <div id="scrambleSelected" class="min-h-[44px] p-3 border-2 border-dashed border-blue-300 rounded-lg flex flex-wrap gap-2 items-center bg-blue-50/50"></div>
-          <div class="flex flex-wrap gap-2 pt-2" id="scramblePool">
-            ${pool.map(w => `<button onclick="pickScrambleWord('${w}', this)" class="px-3 py-1.5 bg-white border rounded-lg shadow-sm text-sm font-medium hover:bg-slate-50">${w}</button>`).join('')}
+      container.innerHTML = filtered.map(p => `
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-xs hover:shadow-md transition space-y-3 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-rose-50 text-rose-700">
+                ${p.cat === 'brother' ? 'Xưng hô thân mật' : p.cat === 'teambuilding' ? 'Bàn tiệc & Gắn kết' : p.cat === 'sports' ? 'Thể thao ngoại khóa' : 'Công việc'}
+              </span>
+              <button onclick="speakChinese('${p.zh.replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-volume-high"></i>
+              </button>
+            </div>
+            <h4 class="text-xl font-black text-slate-900 tracking-wide">${p.zh}</h4>
+            <p class="text-xs text-rose-600 font-bold">${p.pinyin}</p>
+            <p class="text-xs text-slate-700 font-medium">${p.vn}</p>
           </div>
-          <div class="pt-2">
-            <button onclick="checkScramble()" class="px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">Kiểm tra kết quả</button>
-            <button onclick="renderGrammar()" class="px-3 py-1.5 border rounded-lg text-sm text-slate-600 hover:bg-slate-50 ml-2">Làm lại</button>
+          <div class="pt-2 border-t border-slate-100 text-[11px] text-slate-500 italic">
+            Ngữ cảnh: ${p.context}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* ================================================================= */
+    /* TAB 4: REFLEX DRILLS LOGIC                                        */
+    /* ================================================================= */
+    function renderCurrentDrill() {
+      const drill = reflexDrills[currentDrillIndex];
+      document.getElementById('drill-counter').innerText = `Câu ${currentDrillIndex + 1} / ${reflexDrills.length}`;
+      document.getElementById('drill-context').innerText = `Tình huống: ${drill.context}`;
+      document.getElementById('drill-prompt').innerText = `"${drill.prompt}"`;
+      document.getElementById('drill-vn').innerText = `(${drill.vn})`;
+
+      document.getElementById('drill-user-transcript').classList.add('hidden');
+      document.getElementById('drill-suggestions-box').classList.add('hidden');
+
+      const ansList = document.getElementById('drill-answers-list');
+      ansList.innerHTML = drill.answers.map(ans => `
+        <li class="flex items-center justify-between bg-white p-2 rounded-xl border border-amber-200/80">
+          <span>• ${ans}</span>
+          <button onclick="speakText('${ans.replace(/'/g, "\\'")}')" class="text-amber-700 hover:text-amber-900 ml-2">
+            <i class="fa-solid fa-volume-high text-[11px]"></i>
+          </button>
+        </li>
+      `).join('');
+
+      resetDrillTimerBar();
+    }
+
+    function resetDrillTimerBar() {
+      const bar = document.getElementById('drill-timer-bar');
+      bar.style.width = '100%';
+      let timeLeft = 3.0;
+      const timerText = document.getElementById('drill-timer-text');
+      timerText.innerText = '3.0s';
+
+      if (window.drillTimerInterval) clearInterval(window.drillTimerInterval);
+      window.drillTimerInterval = setInterval(() => {
+        timeLeft -= 0.1;
+        if (timeLeft <= 0) {
+          clearInterval(window.drillTimerInterval);
+          bar.style.width = '0%';
+          timerText.innerText = '0.0s';
+        } else {
+          bar.style.width = `${(timeLeft / 3.0) * 100}%`;
+          timerText.innerText = `${timeLeft.toFixed(1)}s`;
+        }
+      }, 100);
+    }
+
+    function playDrillAudio() {
+      const drill = reflexDrills[currentDrillIndex];
+      speakText(drill.prompt);
+    }
+
+    function revealDrillSuggestions() {
+      document.getElementById('drill-suggestions-box').classList.remove('hidden');
+    }
+
+    function nextDrill() {
+      currentDrillIndex = (currentDrillIndex + 1) % reflexDrills.length;
+      renderCurrentDrill();
+      playDrillAudio();
+    }
+
+    function startDrillSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        showToast("Trình duyệt không hỗ trợ nhận diện giọng nói.", "info");
+        return;
+      }
+      const micBtn = document.getElementById('drill-mic-btn');
+      const micLabel = document.getElementById('drill-mic-label');
+      micBtn.className = "px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-200 flex items-center gap-2 transition animate-pulse";
+      micLabel.innerText = "Đang nghe... Nói đi bạn!";
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+
+      recognition.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        document.getElementById('drill-user-transcript').classList.remove('hidden');
+        document.getElementById('drill-spoken-text').innerText = transcript;
+        revealDrillSuggestions();
+      };
+
+      recognition.onerror = () => {
+        showToast("Không thu được âm thanh, hãy thử lại nhé.", "error");
+      };
+
+      recognition.onend = () => {
+        micBtn.className = "px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-100 flex items-center gap-2 transition";
+        micLabel.innerText = "Bấm Mic Để Trả Lời";
+      };
+
+      recognition.start();
+    }
+
+    /* ================================================================= */
+    /* TAB 5: ROLEPLAY LOGIC                                             */
+    /* ================================================================= */
+    function renderRoleplayUI() {
+      const listContainer = document.getElementById('scenario-list');
+      listContainer.innerHTML = roleplayScenarios.map(sc => `
+        <button onclick="selectRoleplayScenario('${sc.id}')" class="w-full text-left p-3 rounded-2xl border transition ${sc.id === activeScenario.id ? 'border-indigo-500 bg-indigo-50/50 text-indigo-950 font-bold shadow-xs' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'}">
+          <div class="text-xs font-extrabold">${sc.partner}</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">${sc.desc}</div>
+        </button>
+      `).join('');
+
+      document.getElementById('chat-partner-name').innerText = activeScenario.partner;
+      document.getElementById('chat-scenario-desc').innerText = activeScenario.desc;
+
+      if (chatDialogue.length === 0) {
+        resetConversation();
+      } else {
+        renderChatMessages();
+      }
+    }
+
+    function selectRoleplayScenario(id) {
+      activeScenario = roleplayScenarios.find(s => s.id === id) || roleplayScenarios[0];
+      chatDialogue = [];
+      renderRoleplayUI();
+    }
+
+    function resetConversation() {
+      chatDialogue = [{ role: 'partner', text: activeScenario.initialMsg }];
+      renderChatMessages();
+      renderQuickHints();
+      if (activeScenario.id === 'sc_boss') {
+        speakChinese(activeScenario.initialMsg);
+      } else {
+        speakText(activeScenario.initialMsg);
+      }
+    }
+
+    function renderChatMessages() {
+      const container = document.getElementById('chat-messages');
+      container.innerHTML = chatDialogue.map(msg => {
+        const isPartner = msg.role === 'partner';
+        return `
+          <div class="flex flex-col ${isPartner ? 'items-start' : 'items-end'} space-y-1">
+            <span class="text-[10px] text-slate-400 font-bold px-1">${isPartner ? activeScenario.partner : 'Bạn'}</span>
+            <div class="max-w-[80%] rounded-2xl p-3 text-xs leading-relaxed ${isPartner ? 'bg-slate-100 text-slate-900 rounded-tl-xs' : 'bg-indigo-600 text-white rounded-tr-xs shadow-xs'} flex items-center gap-2">
+              <span>${msg.text}</span>
+              ${isPartner ? `
+                <button onclick="${activeScenario.id === 'sc_boss' ? `speakChinese('${msg.text.replace(/'/g, "\\'")}')` : `speakText('${msg.text.replace(/'/g, "\\'")}')`}" class="text-slate-400 hover:text-slate-700 ml-1">
+                  <i class="fa-solid fa-volume-high text-[11px]"></i>
+                </button>
+              ` : ''}
+            </div>
           </div>
         `;
-      } else if (ex.type === 'blank' || ex.type === 'error') {
-        body.innerHTML = `
-          <p class="font-medium text-slate-900">${ex.prompt}</p>
-          <div class="p-3 bg-slate-50 border rounded-lg text-base font-semibold text-slate-800">${ex.sentence}</div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-            ${ex.options.map((opt, i) => `
-              <button onclick="checkOptionGrammar(${i}, this)" class="p-3 border rounded-lg text-left text-sm font-medium hover:bg-slate-50">${opt}</button>
-            `).join('')}
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function renderQuickHints() {
+      const container = document.getElementById('chat-quick-hints');
+      container.innerHTML = activeScenario.quickHints.map(hint => `
+        <button onclick="applyQuickHint('${hint.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 font-medium whitespace-nowrap transition">
+          "${hint}"
+        </button>
+      `).join('');
+    }
+
+    function applyQuickHint(text) {
+      document.getElementById('chat-text-input').value = text;
+      sendChatMessage();
+    }
+
+    function handleChatKeyPress(e) {
+      if (e.key === 'Enter') sendChatMessage();
+    }
+
+    function sendChatMessage() {
+      const input = document.getElementById('chat-text-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      chatDialogue.push({ role: 'user', text: text });
+      input.value = '';
+      renderChatMessages();
+
+      setTimeout(() => {
+        let reply = "Great! Let me take care of that for you right away.";
+        if (activeScenario.id === 'sc_boss') {
+          reply = "好嘞！办得漂亮，我就知道你靠谱！";
+        } else if (text.toLowerCase().includes('latte')) {
+          reply = "Sure thing! A large latte it is. Anything to eat with that?";
+        }
+
+        chatDialogue.push({ role: 'partner', text: reply });
+        renderChatMessages();
+
+        if (activeScenario.id === 'sc_boss') {
+          speakChinese(reply);
+        } else {
+          speakText(reply);
+        }
+      }, 700);
+    }
+
+    function startChatVoiceInput() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        showToast("Trình duyệt không hỗ trợ nhận diện giọng nói.", "info");
+        return;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.lang = activeScenario.id === 'sc_boss' ? 'zh-CN' : 'en-US';
+      recognition.onresult = (e) => {
+        document.getElementById('chat-text-input').value = e.results[0][0].transcript;
+        sendChatMessage();
+      };
+      recognition.start();
+      showToast("Đang lắng nghe giọng nói của bạn...", "info");
+    }
+
+    /* ================================================================= */
+    /* TAB 6: SURVIVAL CHUNKS LOGIC                                      */
+    /* ================================================================= */
+    function renderChunks(filterText = '') {
+      const container = document.getElementById('chunks-grid');
+      const filtered = survivalChunks.filter(c => 
+        c.en.toLowerCase().includes(filterText.toLowerCase()) || 
+        c.vn.toLowerCase().includes(filterText.toLowerCase())
+      );
+
+      container.innerHTML = filtered.map(c => `
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-xs hover:shadow-md transition space-y-2 flex flex-col justify-between">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-purple-50 text-purple-700">${c.cat}</span>
+              <button onclick="speakText('${c.en.replace(/'/g, "\\'")}')" class="w-7 h-7 rounded-lg text-purple-600 hover:bg-purple-100 flex items-center justify-center transition">
+                <i class="fa-solid fa-volume-high text-xs"></i>
+              </button>
+            </div>
+            <h5 class="text-base font-extrabold text-slate-900">${c.en}</h5>
+            <p class="text-xs text-slate-600">${c.vn}</p>
           </div>
-        `;
-      }
+          <div class="pt-2 border-t border-slate-100 text-[11px] text-slate-500 italic">
+            Ví dụ: "${c.ex}"
+          </div>
+        </div>
+      `).join('');
     }
 
-    function pickScrambleWord(word, btn) {
-      selectedScramble.push(word);
-      btn.style.display = 'none';
-      const container = document.getElementById('scrambleSelected');
-      const token = document.createElement('span');
-      token.className = 'px-3 py-1 bg-blue-600 text-white rounded-lg text-sm font-medium';
-      token.innerText = word;
-      container.appendChild(token);
+    function filterChunks() {
+      const val = document.getElementById('chunks-search-input').value;
+      renderChunks(val);
     }
 
-    function checkScramble() {
-      const ex = filteredGrammar[currentGrammarIdx];
-      const fb = document.getElementById('grammarFeedback');
-      const isCorrect = JSON.stringify(selectedScramble) === JSON.stringify(ex.correctOrder);
-      fb.classList.remove('hidden');
+    /* ================================================================= */
+    /* 2-WAY HANDS-FREE VOICE CALL LOGIC                                 */
+    /* ================================================================= */
+    let isCallConnected = false;
+    let callRecognition = null;
 
-      if (isCorrect) {
-        fb.className = 'p-4 bg-emerald-50 border border-emerald-300 rounded-lg text-emerald-900';
-        fb.innerHTML = `<strong>Chính xác!</strong> ${ex.explanation}`;
+    function openVoiceCallModal() {
+      document.getElementById('voice-call-modal').classList.remove('hidden');
+    }
+
+    function closeVoiceCallModal() {
+      endVoiceCall();
+      document.getElementById('voice-call-modal').classList.add('hidden');
+    }
+
+    function changeCallScenario() {
+      const select = document.getElementById('call-scenario-select');
+      const val = select.value;
+      const partnerTitle = document.getElementById('call-partner-title');
+
+      if (val.startsWith('zh-')) {
+        partnerTitle.innerText = "Anh Vương (Sếp - Tiếng Trung)";
       } else {
-        fb.className = 'p-4 bg-rose-50 border border-rose-300 rounded-lg text-rose-900';
-        fb.innerHTML = `<strong>Chưa chính xác!</strong> Thứ tự đúng: <em>"${ex.correctOrder.join(' ')}"</em>.<br/>${ex.explanation}`;
+        partnerTitle.innerText = "Sarah (Người Bản Xứ - Tiếng Anh)";
       }
+
+      if (isCallConnected) endVoiceCall();
     }
 
-    function checkOptionGrammar(chosenIdx, btn) {
-      const ex = filteredGrammar[currentGrammarIdx];
-      const fb = document.getElementById('grammarFeedback');
-      fb.classList.remove('hidden');
-
-      if (chosenIdx === ex.answerIndex) {
-        btn.classList.add('bg-emerald-100', 'border-emerald-500');
-        fb.className = 'p-4 bg-emerald-50 border border-emerald-300 rounded-lg text-emerald-900';
-        fb.innerHTML = `<strong>Chính xác!</strong> ${ex.explanation}`;
+    function toggleCallConnection() {
+      if (isCallConnected) {
+        endVoiceCall();
       } else {
-        btn.classList.add('bg-rose-100', 'border-rose-500');
-        fb.className = 'p-4 bg-rose-50 border border-rose-300 rounded-lg text-rose-900';
-        fb.innerHTML = `<strong>Chưa đúng!</strong> ${ex.explanation}`;
+        startVoiceCall();
       }
     }
 
-    function nextGrammar() {
-      if (currentGrammarIdx < filteredGrammar.length - 1) {
-        currentGrammarIdx++;
-        renderGrammar();
+    function startVoiceCall(directScenario) {
+      if (directScenario) {
+        document.getElementById('call-scenario-select').value = directScenario;
+        changeCallScenario();
+        openVoiceCallModal();
+      }
+
+      isCallConnected = true;
+      const connectBtn = document.getElementById('call-connect-btn');
+      connectBtn.className = "w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-xl shadow-lg shadow-rose-500/30 transition transform active:scale-95";
+      document.getElementById('call-wave-ring').classList.remove('hidden');
+
+      const scenario = document.getElementById('call-scenario-select').value;
+      const statusBadge = document.getElementById('call-status-badge');
+      statusBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+      statusBadge.innerText = "Cuộc gọi đang kết nối";
+
+      let opening = "Hey! Good to see you. What's new with you today?";
+      let isChinese = false;
+
+      if (scenario === 'en-coffee') {
+        opening = "Hi! Welcome in. What can I get started for you today?";
+      } else if (scenario === 'zh-boss-work') {
+        opening = "早啊！手头方案进展顺利吗？有什么困难随时跟我说。";
+        isChinese = true;
+      } else if (scenario === 'zh-boss-dinner') {
+        opening = "今晚大家一起聚餐，多吃点特色菜！辛苦大家了！";
+        isChinese = true;
+      } else if (scenario === 'zh-boss-sports') {
+        opening = "周末咱们去打球，场地我已经订好了，你几点到？";
+        isChinese = true;
+      }
+
+      document.getElementById('call-subtitles').innerText = `"${opening}"`;
+
+      if (isChinese) {
+        speakChinese(opening, () => listenToCaller(true));
+      } else {
+        speakText(opening, () => listenToCaller(false));
       }
     }
 
-    function prevGrammar() {
-      if (currentGrammarIdx > 0) {
-        currentGrammarIdx--;
-        renderGrammar();
+    function listenToCaller(isChinese) {
+      if (!isCallConnected) return;
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        showToast("Trình duyệt không hỗ trợ nhận diện giọng nói.", "info");
+        return;
       }
+
+      const statusBadge = document.getElementById('call-status-badge');
+      statusBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30";
+      statusBadge.innerText = "Đang lắng nghe bạn nói...";
+
+      callRecognition = new SpeechRecognition();
+      callRecognition.lang = isChinese ? 'zh-CN' : 'en-US';
+      callRecognition.interimResults = false;
+
+      callRecognition.onresult = (event) => {
+        const userSpoke = event.results[0][0].transcript;
+        document.getElementById('call-subtitles').innerText = `Bạn: "${userSpoke}"`;
+
+        setTimeout(() => {
+          let responseText = "That sounds wonderful! Tell me more about it.";
+          if (isChinese) {
+            responseText = "好的！你办事我一直很放心！";
+          }
+          document.getElementById('call-subtitles').innerText = `"${responseText}"`;
+
+          if (isChinese) {
+            speakChinese(responseText, () => listenToCaller(true));
+          } else {
+            speakText(responseText, () => listenToCaller(false));
+          }
+        }, 800);
+      };
+
+      callRecognition.onerror = () => {
+        if (isCallConnected) {
+          setTimeout(() => listenToCaller(isChinese), 1500);
+        }
+      };
+
+      callRecognition.start();
     }
 
-    // 5. CHỨC NĂNG PHẢN XẠ 3 GIÂY
-    function renderReflex() {
-      const item = reflexData[currentReflexIdx];
-      document.getElementById('reflexPrompt').innerText = `"${item.vn}"`;
-      document.getElementById('reflexEn').innerText = item.en;
-      document.getElementById('reflexZh').innerText = item.zh;
-      document.getElementById('reflexResult').classList.add('hidden');
+    function endVoiceCall() {
+      isCallConnected = false;
+      if (callRecognition) {
+        try { callRecognition.stop(); } catch(e) {}
+      }
+      window.speechSynthesis.cancel();
+
+      const connectBtn = document.getElementById('call-connect-btn');
+      connectBtn.className = "w-16 h-16 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-xl shadow-lg shadow-emerald-500/30 transition transform active:scale-95";
+      document.getElementById('call-wave-ring').classList.add('hidden');
+
+      const statusBadge = document.getElementById('call-status-badge');
+      statusBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700";
+      statusBadge.innerText = "Cuộc gọi đã kết thúc";
+      document.getElementById('call-subtitles').innerText = "Bấm nút xanh bên dưới để bắt đầu cuộc trò chuyện...";
     }
 
-    function showReflexAnswer() {
-      document.getElementById('reflexResult').classList.remove('hidden');
+    /* ================================================================= */
+    /* TOAST NOTIFICATION UTILITY                                        */
+    /* ================================================================= */
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bg = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-900';
+      toast.className = `${bg} text-white px-4 py-2.5 rounded-2xl shadow-xl text-xs font-bold flex items-center gap-2 pointer-events-auto transition transform translate-y-2 opacity-0 duration-200`;
+      toast.innerHTML = `
+        <i class="${type === 'success' ? 'fa-solid fa-circle-check' : type === 'error' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-info'}"></i>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 50);
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-2', 'opacity-0');
+        setTimeout(() => toast.remove(), 200);
+      }, 3000);
     }
 
-    function nextReflexDrill() {
-      currentReflexIdx = (currentReflexIdx + 1) % reflexData.length;
-      renderReflex();
-    }
+    /* ================================================================= */
+    /* WINDOW ONLOAD INITIALIZATION                                      */
+    /* ================================================================= */
+    window.onload = function () {
+      loadSavedState();
+      renderGrammarContent();
+      renderDualVocabContent();
+      renderChineseContent();
+      renderCurrentDrill();
+      renderRoleplayUI();
+      renderChunks();
+      console.log("English & Chinese Reflex Coach fully stabilized and initialized.");
+    };
   </script>
 </body>
 </html>
