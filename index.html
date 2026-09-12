@@ -23,6 +23,9 @@
         <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
           🔥 <span id="streakDisplay">1 Ngày</span>
         </span>
+        <span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-medium">
+          🎯 Điểm gõ: <span id="typingScore">0</span>
+        </span>
         <span class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-medium">
           ✅ <span id="masteredCount">0</span> Đã thuộc
         </span>
@@ -30,8 +33,8 @@
     </div>
     <!-- Navigation Tabs -->
     <div class="max-w-5xl mx-auto px-4 flex space-x-6 overflow-x-auto text-sm">
-      <button onclick="switchTab('vocab')" id="tab-vocab" class="py-3 tab-active whitespace-nowrap">📚 10 Từ Song Ngữ & Quiz</button>
-      <button onclick="switchTab('typing')" id="tab-typing" class="py-3 text-slate-500 hover:text-slate-900 whitespace-nowrap">⌨️ Luyện Gõ Pinyin & Từ</button>
+      <button onclick="switchTab('typing')" id="tab-typing" class="py-3 tab-active whitespace-nowrap">⌨️ Luyện Gõ Pinyin & Từ Vựng</button>
+      <button onclick="switchTab('vocab')" id="tab-vocab" class="py-3 text-slate-500 hover:text-slate-900 whitespace-nowrap">📚 10 Từ Song Ngữ & Quiz</button>
       <button onclick="switchTab('grammar')" id="tab-grammar" class="py-3 text-slate-500 hover:text-slate-900 whitespace-nowrap">🧩 Ngữ Pháp Đa Dạng</button>
       <button onclick="switchTab('reflex')" id="tab-reflex" class="py-3 text-slate-500 hover:text-slate-900 whitespace-nowrap">⏱️ Phản Xạ 3 Giây</button>
     </div>
@@ -40,8 +43,55 @@
   <!-- Main Content Area -->
   <main class="max-w-5xl mx-auto px-4 py-6 flex-1 w-full">
     
-    <!-- TAB 1: 10 TỪ SONG NGỮ & BÀI TẬP TRẮC NGHIỆM TỪ VỰNG -->
-    <section id="sec-vocab" class="space-y-6">
+    <!-- TAB 1: BÀI TẬP GÕ PINYIN & TỪ VỰNG -->
+    <section id="sec-typing" class="space-y-6">
+      <div class="flex flex-wrap gap-2">
+        <button onclick="setTypingMode('pinyin')" id="btn-mode-pinyin" class="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white font-medium">1. Gõ Pinyin (Từ chữ Hán)</button>
+        <button onclick="setTypingMode('en')" id="btn-mode-en" class="px-4 py-2 rounded-lg text-sm bg-white border hover:bg-slate-100 font-medium">2. Gõ Từ Tiếng Anh</button>
+        <button onclick="setTypingMode('zh')" id="btn-mode-zh" class="px-4 py-2 rounded-lg text-sm bg-white border hover:bg-slate-100 font-medium">3. Gõ Chữ Hán</button>
+      </div>
+
+      <div class="bg-white rounded-2xl border p-6 shadow-sm space-y-6 max-w-2xl mx-auto">
+        <div class="flex justify-between items-center text-xs text-slate-500 border-b pb-3">
+          <span id="typingModeLabel" class="font-semibold text-blue-700 uppercase">CHẾ ĐỘ: GÕ PINYIN</span>
+          <span id="typingProgress">Câu 1/10</span>
+        </div>
+
+        <div class="text-center py-4 space-y-3">
+          <div class="text-sm font-medium text-slate-500" id="typingPromptHint">Nghĩa: Hạn chót</div>
+          <div class="text-3xl font-extrabold text-slate-900 flex items-center justify-center gap-3">
+            <span id="typingPromptMain">截止日期</span>
+            <button onclick="playCurrentAudio()" class="text-base text-blue-500 hover:text-blue-700">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <div class="text-xs text-slate-400" id="typingSubHint">Mẹo: Gõ có dấu hoặc không dấu đều hợp lệ</div>
+        </div>
+
+        <div class="space-y-3">
+          <div class="relative">
+            <input type="text" id="typingInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+              placeholder="Gõ kết quả rồi nhấn Enter..."
+              class="w-full px-4 py-3.5 border-2 border-slate-300 rounded-xl text-base focus:border-blue-600 focus:outline-none transition-all shadow-inner font-mono" />
+            <button onclick="checkTypingAnswer()" class="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+              Kiểm tra
+            </button>
+          </div>
+          <p class="text-xs text-slate-400 text-center">Bấm phím <kbd class="px-1.5 py-0.5 bg-slate-100 border rounded text-slate-600">Enter</kbd> để nộp bài nhanh</p>
+        </div>
+
+        <div id="typingFeedback" class="hidden p-4 rounded-xl text-sm space-y-2"></div>
+
+        <div class="flex justify-between items-center pt-3 border-t">
+          <button onclick="prevTypingQuestion()" class="px-4 py-2 border rounded-lg text-sm hover:bg-slate-50">Câu trước</button>
+          <button onclick="skipTypingQuestion()" class="px-4 py-2 text-slate-500 text-sm hover:text-slate-700">Xem đáp án</button>
+          <button onclick="nextTypingQuestion()" class="px-5 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800">Câu kế tiếp</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: 10 TỪ SONG NGỮ & BÀI TẬP TRẮC NGHIỆM TỪ VỰNG -->
+    <section id="sec-vocab" class="hidden space-y-6">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-blue-50 p-4 rounded-xl border border-blue-200">
         <div>
           <h2 class="text-lg font-bold text-blue-900" id="vocabDayTitle">Gói Từ Vựng Ngày 1: Công Sở & Tiến Độ</h2>
@@ -65,53 +115,6 @@
           <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">Trắc nghiệm nhanh</span>
         </div>
         <div id="vocabQuizContainer" class="space-y-4"></div>
-      </div>
-    </section>
-
-    <!-- TAB 2: BÀI TẬP GÕ PINYIN & TỪ VỰNG -->
-    <section id="sec-typing" class="hidden space-y-6">
-      <div class="flex flex-wrap gap-2">
-        <button onclick="setTypingMode('pinyin')" id="btn-mode-pinyin" class="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white font-medium">1. Gõ Pinyin (Từ chữ Hán)</button>
-        <button onclick="setTypingMode('en')" id="btn-mode-en" class="px-4 py-2 rounded-lg text-sm bg-white border hover:bg-slate-100 font-medium">2. Gõ Từ Tiếng Anh</button>
-        <button onclick="setTypingMode('zh')" id="btn-mode-zh" class="px-4 py-2 rounded-lg text-sm bg-white border hover:bg-slate-100 font-medium">3. Gõ Chữ Hán</button>
-      </div>
-
-      <div class="bg-white rounded-2xl border p-6 shadow-sm space-y-6 max-w-2xl mx-auto">
-        <div class="flex justify-between items-center text-xs text-slate-500 border-b pb-3">
-          <span id="typingModeLabel" class="font-semibold text-blue-700 uppercase">CHẾ ĐỘ: GÕ PINYIN</span>
-          <span id="typingProgress">Câu 1/10</span>
-        </div>
-
-        <div class="text-center py-4 space-y-3">
-          <div class="text-sm font-medium text-slate-500" id="typingPromptHint">Nghĩa: Hạn chót</div>
-          <div class="text-3xl font-extrabold text-slate-900 flex items-center justify-center gap-3">
-            <span id="typingPromptMain">截止日期</span>
-            <button onclick="playCurrentAudio()" class="text-base text-blue-500 hover:text-blue-700">
-              <i class="fa-solid fa-volume-high"></i>
-            </button>
-          </div>
-          <div class="text-xs text-slate-400" id="typingSubHint">Mẹo: Gõ pinyin có dấu hoặc không dấu đều hợp lệ</div>
-        </div>
-
-        <div class="space-y-3">
-          <div class="relative">
-            <input type="text" id="typingInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-              placeholder="Gõ kết quả rồi nhấn Enter..."
-              class="w-full px-4 py-3.5 border-2 border-slate-300 rounded-xl text-base focus:border-blue-600 focus:outline-none transition-all shadow-inner font-mono" />
-            <button onclick="checkTypingAnswer()" class="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
-              Kiểm tra
-            </button>
-          </div>
-          <p class="text-xs text-slate-400 text-center">Bấm phím <kbd class="px-1.5 py-0.5 bg-slate-100 border rounded text-slate-600">Enter</kbd> để nộp bài nhanh</p>
-        </div>
-
-        <div id="typingFeedback" class="hidden p-4 rounded-xl text-sm space-y-2"></div>
-
-        <div class="flex justify-between items-center pt-3 border-t">
-          <button onclick="prevTypingQuestion()" class="px-4 py-2 border rounded-lg text-sm hover:bg-slate-50">Câu trước</button>
-          <button onclick="skipTypingQuestion()" class="px-4 py-2 text-slate-500 text-sm hover:text-slate-700">Xem đáp án</button>
-          <button onclick="nextTypingQuestion()" class="px-5 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800">Câu kế tiếp</button>
-        </div>
       </div>
     </section>
 
@@ -251,16 +254,17 @@
     let currentDayIndex = 0;
     let currentTypingIndex = 0;
     let typingMode = 'pinyin';
+    let typingScore = 0;
     let currentGrammarIdx = 0;
     let filteredGrammar = [...grammarExercises];
     let selectedScramble = [];
     let currentReflexIdx = 0;
     let mastered = JSON.parse(localStorage.getItem('masteredVocab') || "[]");
 
-    // KHỞI ĐỘNG
+    // KHỞI ĐỘNG HỆ THỐNG
     window.onload = function() {
-      renderVocab();
       initTyping();
+      renderVocab();
       renderGrammar();
       renderReflex();
       document.getElementById('masteredCount').innerText = mastered.length;
@@ -268,7 +272,7 @@
 
     // CHUYỂN TAB
     function switchTab(tab) {
-      ['vocab', 'typing', 'grammar', 'reflex'].forEach(t => {
+      ['typing', 'vocab', 'grammar', 'reflex'].forEach(t => {
         document.getElementById(`sec-${t}`).classList.add('hidden');
         document.getElementById(`tab-${t}`).className = 'py-3 text-slate-500 hover:text-slate-900 whitespace-nowrap';
       });
@@ -285,7 +289,134 @@
       window.speechSynthesis.speak(u);
     }
 
-    // 1. CHỨC NĂNG TỪ VỰNG & BÀI TẬP GHÉP CẶP
+    // 1. CHỨC NĂNG BÀI TẬP GÕ PHÍM
+    function initTyping() {
+      renderTypingCard();
+      const input = document.getElementById('typingInput');
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') checkTypingAnswer();
+      });
+    }
+
+    function setTypingMode(mode) {
+      typingMode = mode;
+      ['pinyin', 'en', 'zh'].forEach(m => {
+        const btn = document.getElementById(`btn-mode-${m}`);
+        if (m === mode) {
+          btn.className = 'px-4 py-2 rounded-lg text-sm bg-blue-600 text-white font-medium';
+        } else {
+          btn.className = 'px-4 py-2 rounded-lg text-sm bg-white border hover:bg-slate-100 font-medium';
+        }
+      });
+      currentTypingIndex = 0;
+      renderTypingCard();
+    }
+
+    function removePinyinTones(str) {
+      return str.normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/ü/g, 'v')
+        .replace(/Ü/g, 'v')
+        .replace(/[^a-zA-Z0-9\s]/g, '')
+        .toLowerCase();
+    }
+
+    function renderTypingCard() {
+      const words = vocabData[0].words;
+      const cur = words[currentTypingIndex];
+      document.getElementById('typingProgress').innerText = `Câu ${currentTypingIndex + 1}/${words.length}`;
+      
+      const promptMain = document.getElementById('typingPromptMain');
+      const promptHint = document.getElementById('typingPromptHint');
+      const subHint = document.getElementById('typingSubHint');
+      const modeLabel = document.getElementById('typingModeLabel');
+      const feedback = document.getElementById('typingFeedback');
+      const input = document.getElementById('typingInput');
+
+      feedback.className = 'hidden';
+      input.value = '';
+      input.focus();
+
+      if (typingMode === 'pinyin') {
+        modeLabel.innerText = 'CHẾ ĐỘ: GÕ PINYIN';
+        promptMain.innerText = cur.zh;
+        promptHint.innerText = `Nghĩa: ${cur.vn} (Từ tiếng Anh: ${cur.en})`;
+        subHint.innerText = `Mẹo: Gõ có dấu (${cur.pinyin}) hoặc không dấu (${cur.pinyinClean})`;
+        input.placeholder = 'Nhập Pinyin (vd: ' + cur.pinyinClean + ')...';
+      } else if (typingMode === 'en') {
+        modeLabel.innerText = 'CHẾ ĐỘ: GÕ TỪ TIẾNG ANH';
+        promptMain.innerText = cur.zh + ' (' + cur.pinyin + ')';
+        promptHint.innerText = `Nghĩa: ${cur.vn} • Phiên âm: ${cur.ipa}`;
+        subHint.innerText = 'Gõ chính xác từ tiếng Anh tương ứng';
+        input.placeholder = 'Nhập từ tiếng Anh...';
+      } else if (typingMode === 'zh') {
+        modeLabel.innerText = 'CHẾ ĐỘ: GÕ CHỮ HÁN';
+        promptMain.innerText = cur.en;
+        promptHint.innerText = `Nghĩa: ${cur.vn} • Pinyin: ${cur.pinyin}`;
+        subHint.innerText = 'Dùng bộ gõ tiếng Trung để nhập chữ Hán';
+        input.placeholder = 'Nhập chữ Hán...';
+      }
+    }
+
+    function checkTypingAnswer() {
+      const words = vocabData[0].words;
+      const cur = words[currentTypingIndex];
+      const input = document.getElementById('typingInput').value.trim();
+      const feedback = document.getElementById('typingFeedback');
+      feedback.classList.remove('hidden');
+
+      let isCorrect = false;
+      if (typingMode === 'pinyin') {
+        const userClean = removePinyinTones(input).replace(/\s+/g, '');
+        const targetClean = removePinyinTones(cur.pinyin).replace(/\s+/g, '');
+        const targetCleanAlt = cur.pinyinClean.replace(/\s+/g, '');
+        if (userClean === targetClean || userClean === targetCleanAlt) isCorrect = true;
+      } else if (typingMode === 'en') {
+        if (input.toLowerCase() === cur.en.toLowerCase()) isCorrect = true;
+      } else if (typingMode === 'zh') {
+        if (input === cur.zh) isCorrect = true;
+      }
+
+      if (isCorrect) {
+        typingScore += 10;
+        document.getElementById('typingScore').innerText = typingScore;
+        feedback.className = 'p-4 bg-emerald-50 border border-emerald-300 rounded-xl text-emerald-900 text-sm';
+        feedback.innerHTML = `<strong>Chính xác!</strong> ${cur.en} = ${cur.zh} (${cur.pinyin}): ${cur.vn}`;
+        playAudio(typingMode === 'en' ? cur.en : cur.zh, typingMode === 'en' ? 'en-US' : 'zh-CN');
+      } else {
+        feedback.className = 'p-4 bg-rose-50 border border-rose-300 rounded-xl text-rose-900 text-sm';
+        let rightAns = typingMode === 'pinyin' ? `${cur.pinyin} (${cur.pinyinClean})` : (typingMode === 'en' ? cur.en : cur.zh);
+        feedback.innerHTML = `Chưa đúng! Đáp án chuẩn: <strong class="font-mono text-slate-900">${rightAns}</strong>`;
+      }
+    }
+
+    function skipTypingQuestion() {
+      const words = vocabData[0].words;
+      const cur = words[currentTypingIndex];
+      const feedback = document.getElementById('typingFeedback');
+      feedback.classList.remove('hidden');
+      feedback.className = 'p-4 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-sm';
+      feedback.innerHTML = `Đáp án: <strong>${cur.en}</strong> | <strong>${cur.zh}</strong> (${cur.pinyin}) - ${cur.vn}`;
+    }
+
+    function nextTypingQuestion() {
+      const words = vocabData[0].words;
+      currentTypingIndex = (currentTypingIndex + 1) % words.length;
+      renderTypingCard();
+    }
+
+    function prevTypingQuestion() {
+      const words = vocabData[0].words;
+      currentTypingIndex = (currentTypingIndex - 1 + words.length) % words.length;
+      renderTypingCard();
+    }
+
+    function playCurrentAudio() {
+      const cur = vocabData[0].words[currentTypingIndex];
+      playAudio(typingMode === 'en' ? cur.en : cur.zh, typingMode === 'en' ? 'en-US' : 'zh-CN');
+    }
+
+    // 2. CHỨC NĂNG TỪ VỰNG & BÀI TẬP GHÉP CẶP
     function renderVocab() {
       const data = vocabData[currentDayIndex];
       document.getElementById('vocabDayTitle').innerText = `Gói Từ Vựng Ngày ${data.day}: ${data.title}`;
@@ -382,131 +513,6 @@
       } else {
         btn.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-900');
       }
-    }
-
-    // 2. CHỨC NĂNG BÀI TẬP GÕ PHÍM
-    function initTyping() {
-      renderTypingCard();
-      const input = document.getElementById('typingInput');
-      input.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') checkTypingAnswer();
-      });
-    }
-
-    function setTypingMode(mode) {
-      typingMode = mode;
-      ['pinyin', 'en', 'zh'].forEach(m => {
-        const btn = document.getElementById(`btn-mode-${m}`);
-        if (m === mode) {
-          btn.className = 'px-4 py-2 rounded-lg text-sm bg-blue-600 text-white font-medium';
-        } else {
-          btn.className = 'px-4 py-2 rounded-lg text-sm bg-white border hover:bg-slate-100 font-medium';
-        }
-      });
-      currentTypingIndex = 0;
-      renderTypingCard();
-    }
-
-    function removePinyinTones(str) {
-      return str.normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/ü/g, 'v')
-        .replace(/Ü/g, 'v')
-        .replace(/[^a-zA-Z0-9\s]/g, '')
-        .toLowerCase();
-    }
-
-    function renderTypingCard() {
-      const words = vocabData[0].words;
-      const cur = words[currentTypingIndex];
-      document.getElementById('typingProgress').innerText = `Câu ${currentTypingIndex + 1}/${words.length}`;
-      
-      const promptMain = document.getElementById('typingPromptMain');
-      const promptHint = document.getElementById('typingPromptHint');
-      const subHint = document.getElementById('typingSubHint');
-      const modeLabel = document.getElementById('typingModeLabel');
-      const feedback = document.getElementById('typingFeedback');
-      const input = document.getElementById('typingInput');
-
-      feedback.className = 'hidden';
-      input.value = '';
-      input.focus();
-
-      if (typingMode === 'pinyin') {
-        modeLabel.innerText = 'CHẾ ĐỘ: GÕ PINYIN';
-        promptMain.innerText = cur.zh;
-        promptHint.innerText = `Nghĩa: ${cur.vn} (Từ tiếng Anh: ${cur.en})`;
-        subHint.innerText = `Mẹo: Gõ có dấu (${cur.pinyin}) hoặc không dấu (${cur.pinyinClean})`;
-        input.placeholder = 'Nhập Pinyin (vd: ' + cur.pinyinClean + ')...';
-      } else if (typingMode === 'en') {
-        modeLabel.innerText = 'CHẾ ĐỘ: GÕ TỪ TIẾNG ANH';
-        promptMain.innerText = cur.zh + ' (' + cur.pinyin + ')';
-        promptHint.innerText = `Nghĩa: ${cur.vn} • Phiên âm: ${cur.ipa}`;
-        subHint.innerText = 'Gõ chính xác từ tiếng Anh tương ứng';
-        input.placeholder = 'Nhập từ tiếng Anh...';
-      } else if (typingMode === 'zh') {
-        modeLabel.innerText = 'CHẾ ĐỘ: GÕ CHỮ HÁN';
-        promptMain.innerText = cur.en;
-        promptHint.innerText = `Nghĩa: ${cur.vn} • Pinyin: ${cur.pinyin}`;
-        subHint.innerText = 'Dùng bộ gõ tiếng Trung để nhập chữ Hán';
-        input.placeholder = 'Nhập chữ Hán...';
-      }
-    }
-
-    function checkTypingAnswer() {
-      const words = vocabData[0].words;
-      const cur = words[currentTypingIndex];
-      const input = document.getElementById('typingInput').value.trim();
-      const feedback = document.getElementById('typingFeedback');
-      feedback.classList.remove('hidden');
-
-      let isCorrect = false;
-      if (typingMode === 'pinyin') {
-        const userClean = removePinyinTones(input).replace(/\s+/g, '');
-        const targetClean = removePinyinTones(cur.pinyin).replace(/\s+/g, '');
-        const targetCleanAlt = cur.pinyinClean.replace(/\s+/g, '');
-        if (userClean === targetClean || userClean === targetCleanAlt) isCorrect = true;
-      } else if (typingMode === 'en') {
-        if (input.toLowerCase() === cur.en.toLowerCase()) isCorrect = true;
-      } else if (typingMode === 'zh') {
-        if (input === cur.zh) isCorrect = true;
-      }
-
-      if (isCorrect) {
-        feedback.className = 'p-4 bg-emerald-50 border border-emerald-300 rounded-xl text-emerald-900 text-sm';
-        feedback.innerHTML = `<strong>Chính xác!</strong> ${cur.en} = ${cur.zh} (${cur.pinyin}): ${cur.vn}`;
-        playAudio(typingMode === 'en' ? cur.en : cur.zh, typingMode === 'en' ? 'en-US' : 'zh-CN');
-      } else {
-        feedback.className = 'p-4 bg-rose-50 border border-rose-300 rounded-xl text-rose-900 text-sm';
-        let rightAns = typingMode === 'pinyin' ? `${cur.pinyin} (${cur.pinyinClean})` : (typingMode === 'en' ? cur.en : cur.zh);
-        feedback.innerHTML = `Chưa đúng! Đáp án chuẩn: <strong class="font-mono text-slate-900">${rightAns}</strong>`;
-      }
-    }
-
-    function skipTypingQuestion() {
-      const words = vocabData[0].words;
-      const cur = words[currentTypingIndex];
-      const feedback = document.getElementById('typingFeedback');
-      feedback.classList.remove('hidden');
-      feedback.className = 'p-4 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-sm';
-      feedback.innerHTML = `Đáp án: <strong>${cur.en}</strong> | <strong>${cur.zh}</strong> (${cur.pinyin}) - ${cur.vn}`;
-    }
-
-    function nextTypingQuestion() {
-      const words = vocabData[0].words;
-      currentTypingIndex = (currentTypingIndex + 1) % words.length;
-      renderTypingCard();
-    }
-
-    function prevTypingQuestion() {
-      const words = vocabData[0].words;
-      currentTypingIndex = (currentTypingIndex - 1 + words.length) % words.length;
-      renderTypingCard();
-    }
-
-    function playCurrentAudio() {
-      const cur = vocabData[0].words[currentTypingIndex];
-      playAudio(typingMode === 'en' ? cur.en : cur.zh, typingMode === 'en' ? 'en-US' : 'zh-CN');
     }
 
     // 3. CHỨC NĂNG BÀI TẬP NGỮ PHÁP ĐA DẠNG
